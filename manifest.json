@@ -1,10 +1,11 @@
 {
-  "name": "Parquinho Terrasol",
-  "short_name": "Terrasol",
-  "start_url": "/",
+  "name": "Terra do Sol - Gestão de Acessos",
+  "short_name": "TerraDoSol",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#E67A2E",
+  "theme_color": "#0ea5ff",
+  "description": "Sistema de cadastro, leitura de QR e controle de acessos para o Parquinho Terra do Sol.",
   "icons": [
     {
       "src": "icon-192.png",
