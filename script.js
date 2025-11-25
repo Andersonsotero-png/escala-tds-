@@ -1,5 +1,3 @@
-/* Main app JS - funcional para Terra do Sol - Gestão de Acessos */
-
 document.addEventListener("DOMContentLoaded", () => {
 
   /* helpers */
@@ -48,317 +46,374 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("idadeCrianca").value = idade;
   });
 
-  /* pulseira auto */
-  function calcBracelet() {
-    const altura = document.getElementById("alturaCrianca").value;
-    const pode = document.getElementById("podeSairSozinho").value;
-    if (document.getElementById("manualPulseira").checked) return document.getElementById("corPulseira").value;
-    let c = "";
-    if (altura === "<1m") c = "Vermelha";
-    else if (altura === ">=1m" && pode === "nao") c = "Amarela";
-    else if (altura === ">=1m" && pode === "sim") c = "Verde";
-    document.getElementById("corPulseira").value = c;
-    return c;
-  }
-  document.getElementById("alturaCrianca").onchange = calcBracelet;
-  document.getElementById("podeSairSozinho").onchange = calcBracelet;
-
-  /* setores */
+  /* seleção de setor */
+  let setorSelecionado = null;
   document.querySelectorAll(".setor-card").forEach(card => {
-    card.onclick = () => {
+    card.addEventListener("click", () => {
       document.querySelectorAll(".setor-card").forEach(c => c.classList.remove("selected"));
       card.classList.add("selected");
-    };
+      setorSelecionado = card.dataset.setor;
+      atualizarCorPulseira();
+    });
   });
 
-  /* QR rendering */
-  function renderQrForId(id) {
-    const el = document.getElementById("qrcodeGerado");
-    if (!el) return;
-    el.innerHTML = "";
-    try { new QRCode(el, { text: id, width: 160, height: 160, correctLevel: QRCode.CorrectLevel.H }); }
-    catch (e) { console.warn("QR render failed", e); }
+  /* cor pulseira automática */
+  function atualizarCorPulseira() {
+    if (document.getElementById("manualPulseira").checked) return;
+    const altura = document.getElementById("alturaCrianca").value;
+    const idade = parseInt(document.getElementById("idadeCrianca").value, 10);
+    let cor = "";
+    if (!altura || isNaN(idade)) {
+      cor = "";
+    } else if (altura === "<1m") {
+      cor = "Rosa";
+    } else if (altura === ">=1m" && idade < 6) {
+      cor = "Azul";
+    } else {
+      cor = "Verde";
+    }
+    document.getElementById("corPulseira").value = cor;
+  }
+  document.getElementById("alturaCrianca").addEventListener("change", atualizarCorPulseira);
+  document.getElementById("manualPulseira").addEventListener("change", () => {
+    if (document.getElementById("manualPulseira").checked) {
+      document.getElementById("corPulseira").removeAttribute("readonly");
+    } else {
+      document.getElementById("corPulseira").setAttribute("readonly", "");
+      atualizarCorPulseira();
+    }
+  });
+
+  /* QR Code */
+  let qrcode = new QRCode(document.getElementById("qrcodeGerado"), {
+    width: 130,
+    height: 130,
+  });
+
+  /* gerar QR ao mudar nome */
+  function gerarQr(id) {
+    qrcode.clear();
+    qrcode.makeCode(id);
     document.getElementById("qrIdLabel").textContent = id;
   }
 
-  document.getElementById("baixarQR").onclick = () => {
-    const el = document.getElementById("qrcodeGerado").querySelector("img, canvas");
-    if (!el) return alert("Gere o QR primeiro.");
-    if (el.tagName.toLowerCase() === "img") {
-      const a = document.createElement("a"); a.href = el.src; a.download = "qr_parquinho.png"; a.click();
-    } else {
-      const a = document.createElement("a"); a.href = el.toDataURL("image/png"); a.download = "qr_parquinho.png"; a.click();
-    }
-  };
+  /* limpar formulário */
+  function limparFormulario() {
+    document.getElementById("nomeCrianca").value = "";
+    document.getElementById("dataNascimento").value = "";
+    document.getElementById("idadeCrianca").value = "";
+    document.getElementById("alturaCrianca").value = "";
+    document.getElementById("alergias").value = "";
+    document.getElementById("podeSairSozinho").value = "nao";
+    document.getElementById("nomeResp").value = "";
+    document.getElementById("telefoneResp").value = "";
+    document.getElementById("emailResp").value = "";
+    setorSelecionado = null;
+    document.querySelectorAll(".setor-card").forEach(c => c.classList.remove("selected"));
+    document.getElementById("numeroMesa").value = "";
+    document.getElementById("corPulseira").value = "";
+    document.getElementById("manualPulseira").checked = false;
+    document.getElementById("corPulseira").setAttribute("readonly", "");
+    qrcode.clear();
+    document.getElementById("qrIdLabel").textContent = "Nenhum";
+  }
 
-  /* cadastro */
-  document.getElementById("registrarCadastro").onclick = () => {
+  /* salvar cadastro */
+  document.getElementById("registrarCadastro").addEventListener("click", () => {
     const nome = document.getElementById("nomeCrianca").value.trim();
-    const dataNascimento = document.getElementById("dataNascimento").value.trim();
-    const idade = document.getElementById("idadeCrianca").value.trim();
+    const dataNasc = document.getElementById("dataNascimento").value;
+    const idade = parseInt(document.getElementById("idadeCrianca").value, 10);
     const altura = document.getElementById("alturaCrianca").value;
     const alergias = document.getElementById("alergias").value.trim();
-    const pode = document.getElementById("podeSairSozinho").value;
-
-    const resp = document.getElementById("nomeResp").value.trim();
-    const tel = document.getElementById("telefoneResp").value.trim();
-    const email = document.getElementById("emailResp").value.trim();
-
-    const setorCard = document.querySelector(".setor-card.selected");
-    if (!setorCard) return alert("Selecione um setor!");
-    const setor = setorCard.dataset.setor;
-
+    const podeSair = document.getElementById("podeSairSozinho").value;
+    const nomeResp = document.getElementById("nomeResp").value.trim();
+    const telefoneResp = document.getElementById("telefoneResp").value.trim();
+    const emailResp = document.getElementById("emailResp").value.trim();
     const mesa = document.getElementById("numeroMesa").value.trim();
+    const pulseira = document.getElementById("corPulseira").value.trim();
 
-    if (!nome || !dataNascimento || !idade || !altura || !resp || !tel || !email || !mesa) return alert("Preencha todos os campos.");
+    if (!nome || !dataNasc || !setorSelecionado || !pulseira) {
+      alert("Preencha todos os campos obrigatórios: nome, data de nascimento, setor e pulseira.");
+      return;
+    }
 
-    const bracelet = calcBracelet() || "—";
-    const id = "TPS-" + uid(8);
-
-    const client = {
+    const id = uid(6);
+    const cadastro = {
       id,
       nome,
+      dataNasc,
       idade,
-      dataNascimento,
       altura,
       alergias,
-      podeSairSozinho: pode,
-      responsavel: resp,
-      telefone: tel,
-      email,
-      setorPreferencia: setor,
-      mesaPreferencia: mesa,
-      pulseira: bracelet,
-      qrCode: id
+      podeSair,
+      nomeResp,
+      telefoneResp,
+      emailResp,
+      setor: setorSelecionado,
+      mesa,
+      pulseira,
+      criadoEm: nowISO(),
     };
 
-    clients.push(client);
+    clients.push(cadastro);
     saveAll();
+    limparFormulario();
+    gerarQr(id);
+    alert("Cadastro salvo com sucesso!");
+  });
 
-    renderQrForId(id);
-    atualizarListaClients();
+  /* baixar QR */
+  document.getElementById("baixarQR").addEventListener("click", () => {
+    const qrCanvas = document.querySelector("#qrcodeGerado canvas");
+    if (!qrCanvas) {
+      alert("Gere o QR Code primeiro.");
+      return;
+    }
+    const link = document.createElement("a");
+    link.href = qrCanvas.toDataURL("image/png");
+    link.download = "qrcode.png";
+    link.click();
+  });
 
-    document.querySelectorAll("#cadastro input:not([readonly]), #cadastro select, #cadastro textarea").forEach(i => i.value = "");
-    document.querySelectorAll(".setor-card").forEach(c => c.classList.remove("selected"));
-    document.getElementById("corPulseira").value = "";
-
-    alert("Cadastro salvo — QR gerado (ID). Use a aba Leitor QR para ler.");
-  };
-
-  /* presentes / histórico helpers */
-  function addManualEntry(clientId) {
-    const client = clients.find(c => c.id === clientId);
-    if (!client) return alert("Cliente não encontrado.");
-    if (presentes.find(p => p.id === clientId)) return alert("Já presente.");
-    const start = nowISO();
-    const item = {
-      id: client.id,
-      nome: client.nome,
-      idade: client.idade,
-      dataNascimento: client.dataNascimento,
-      altura: client.altura,
-      alergias: client.alergias,
-      podeSairSozinho: client.podeSairSozinho,
-      responsavel: client.responsavel,
-      telefone: client.telefone,
-      email: client.email,
-      setor: client.setorPreferencia,
-      mesa: client.mesaPreferencia,
-      pulseira: client.pulseira,
-      entradaISO: start,
-      entradaDisplay: timeDisplay(start),
-      qrCode: client.qrCode
-    };
-    presentes.push(item);
-    saveAll();
-    atualizarPresentes();
-  }
-  window.registrarEntradaManual = addManualEntry;
-
-  window.registrarSaidaManualmente = function (index) {
-    const item = presentes[index];
-    if (!item) return;
-    const out = nowISO();
-    const t = duration(item.entradaISO, out);
-    const registro = { ...item, saidaISO: out, tempo: t };
-    historico.unshift(registro);
-    presentes.splice(index, 1);
-    saveAll();
-    atualizarPresentes();
-    atualizarHistorico();
-  };
-
+  /* atualizar listas presentes e histórico */
   function atualizarPresentes() {
-    const area = document.getElementById("listaPresentes");
-    area.innerHTML = "";
-    if (presentes.length === 0) { area.innerHTML = "<div class='card-reg'>Nenhuma criança presente.</div>"; return; }
-    presentes.forEach((p, i) => {
-      const el = document.createElement("div"); el.className = "card-reg";
-      el.innerHTML = `
-        <div class="small-row"><strong>${p.nome}</strong> <span style="color:var(--muted);margin-left:8px">${p.responsavel}</span></div>
-        <div class="small-row">🎂 ${p.dataNascimento} • ${p.idade} anos • 📏 ${p.altura}</div>
-        <div class="small-row">📞 ${p.telefone} • 🎨 ${p.pulseira} • 🌿 ${p.setor} • Mesa ${p.mesa}</div>
-        <div class="small-row">⚠️ ${p.alergias || "Sem restrições"}</div>
-        <div class="small-row">⏰ Entrada: ${p.entradaDisplay}</div>
-        <div style="display:flex;justify-content:flex-end;margin-top:8px"><button onclick="registrarSaidaManualmente(${i})">Registrar Saída</button></div>
-      `;
-      area.appendChild(el);
+    const lista = document.getElementById("listaPresentes");
+    lista.innerHTML = "";
+    if (presentes.length === 0) {
+      lista.innerHTML = "<p>Nenhuma criança presente.</p>";
+      return;
+    }
+    presentes.forEach(p => {
+      const item = document.createElement("div");
+      item.className = "card-reg";
+      item.textContent = `${p.nome} - Setor: ${p.setor} - Chegada: ${new Date(p.entrada).toLocaleTimeString()}`;
+      lista.appendChild(item);
     });
   }
 
   function atualizarHistorico() {
-    const area = document.getElementById("listaHistorico");
-    area.innerHTML = "";
-    if (historico.length === 0) { area.innerHTML = "<div class='card-reg'>Nenhum histórico.</div>"; return; }
+    const lista = document.getElementById("listaHistorico");
+    lista.innerHTML = "";
+    if (historico.length === 0) {
+      lista.innerHTML = "<p>Nenhum histórico registrado.</p>";
+      return;
+    }
     historico.forEach(h => {
-      const el = document.createElement("div"); el.className = "card-reg";
-      el.innerHTML = `
-        <div class="small-row"><strong>${h.nome}</strong> • ${h.idade} anos</div>
-        <div class="small-row">🎂 Nascimento: ${h.dataNascimento || "—"}</div>
-        <div class="small-row">📏 Altura: ${h.altura} • 🎨 Pulseira: ${h.pulseira}</div>
-        <div class="small-row">⚠️ Alergias: ${h.alergias || "Nenhuma"}</div>
-        <div class="small-row">🚸 Pode sair sozinho? ${h.podeSairSozinho === "sim" ? "Sim" : "Não"}</div>
-        <div class="small-row">👤 Responsável: ${h.responsavel} • ${h.telefone}</div>
-        <div class="small-row">✉️ Email: ${h.email}</div>
-        <div class="small-row">📍 Setor: ${h.setor} • Mesa: ${h.mesa}</div>
-        <div class="small-row">🆔 QRCode (ID): ${h.qrCode}</div>
-        <div class="small-row">➡️ Entrada: ${timeDisplay(h.entradaISO)}</div>
-        <div class="small-row">⬅️ Saída: ${timeDisplay(h.saidaISO)}</div>
-        <div class="small-row">⏳ Permanência: ${h.tempo || duration(h.entradaISO, h.saidaISO)}</div>
+      const item = document.createElement("div");
+      item.className = "card-reg";
+      item.innerHTML = `
+        <strong>${h.nome}</strong><br/>
+        Entrada: ${timeDisplay(h.entrada)} <br/>
+        Saída: ${timeDisplay(h.saida)} <br/>
+        Duração: ${duration(h.entrada, h.saida)}
       `;
-      area.appendChild(el);
+      lista.appendChild(item);
     });
   }
 
-  /* export CSV & limpar */
-  document.getElementById("exportCsv").onclick = () => {
-    if (historico.length === 0) return alert("Nenhum histórico para exportar.");
-    const rows = [["Nome", "Nascimento", "Idade", "Telefone", "Entrada", "Saída", "Permanência", "Pulseira", "Setor", "Mesa", "Alergias"]];
-    historico.forEach(h => rows.push([h.nome, h.dataNascimento, h.idade, h.telefone, timeDisplay(h.entradaISO), timeDisplay(h.saidaISO), h.tempo || duration(h.entradaISO, h.saidaISO), h.pulseira, h.setor, h.mesa, h.alergias]));
-    const csv = rows.map(r => r.map(v => `"${String(v || "").replace(/"/g, '""')}"`).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  atualizarPresentes();
+  atualizarHistorico();
+
+  /* exportar CSV */
+  document.getElementById("exportCsv").addEventListener("click", () => {
+    if (historico.length === 0) {
+      alert("Nenhum histórico para exportar.");
+      return;
+    }
+    const csvRows = [];
+    const headers = ["ID", "Nome", "Entrada", "Saída", "Duração"];
+    csvRows.push(headers.join(","));
+    historico.forEach(h => {
+      const row = [
+        h.id || "",
+        `"${h.nome}"`,
+        h.entrada || "",
+        h.saida || "",
+        duration(h.entrada, h.saida),
+      ];
+      csvRows.push(row.join(","));
+    });
+    const csvString = csvRows.join("\n");
+    const blob = new Blob([csvString], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "historico_parquinho.csv"; a.click();
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "historico.csv";
+    a.click();
     URL.revokeObjectURL(url);
-  };
+  });
 
-  document.getElementById("limparHistorico").onclick = () => {
-    if (!confirm("Confirma limpar TODO o histórico?")) return;
-    historico = [];
-    saveAll();
-    atualizarHistorico();
-  };
-
-  /* QR reader (html5-qrcode) */
-  let html5QrCode = null;
-  let leitorAtivo = false;
-  let lastReadAt = 0;
-
-  async function startScanner() {
-    try {
-      if (leitorAtivo) return;
-      const regionId = "qrScanner";
-      html5QrCode = new Html5Qrcode(regionId);
-      const cams = await Html5Qrcode.getCameras();
-      if (!cams || cams.length === 0) return alert("Nenhuma câmera encontrada. Use o botão Teste em outro dispositivo.");
-      const camId = cams.find(c => /back|rear|environment/i.test(c.label))?.id || cams[0].id;
-      await html5QrCode.start(camId, { fps: 12, qrbox: 300 }, decoded => {
-        const now = Date.now();
-        if (now - lastReadAt < 700) return;
-        lastReadAt = now;
-        handleScan(decoded);
-      }, err => { /* tiny errors ignored */ });
-      leitorAtivo = true;
-    } catch (err) {
-      console.error("Scanner start error:", err);
-      alert("Erro ao abrir a câmera. Verifique permissão e se a página usa HTTPS.");
-    }
-  }
-
-  async function stopScanner() {
-    try {
-      if (html5QrCode && leitorAtivo) {
-        await html5QrCode.stop();
-        html5QrCode.clear();
-        leitorAtivo = false;
-      }
-    } catch (err) { console.warn("stop error", err); }
-  }
-
-  document.getElementById("iniciarLeitor").onclick = startScanner;
-  document.getElementById("pararLeitor").onclick = stopScanner;
-
-  document.getElementById("testarLeitura").onclick = () => {
-    if (clients.length === 0) return alert("Cadastre ao menos um cliente para testar.");
-    const last = clients[clients.length - 1];
-    handleScan(last.qrCode);
-  };
-
-  function handleScan(text) {
-    const resEl = document.getElementById("resultadoLeitura");
-    resEl.style.display = "block";
-    const id = String(text).trim();
-    const client = clients.find(c => c.qrCode === id);
-    const present = client ? presentes.find(p => p.id === client.id) : null;
-
-    if (!client && !present) { resEl.innerHTML = `<div style="color:#c00">QR não cadastrado</div>`; return; }
-
-    if (!present && client) {
-      const start = nowISO();
-      const item = {
-        id: client.id,
-        nome: client.nome,
-        idade: client.idade,
-        dataNascimento: client.dataNascimento,
-        altura: client.altura,
-        alergias: client.alergias,
-        podeSairSozinho: client.podeSairSozinho,
-        responsavel: client.responsavel,
-        telefone: client.telefone,
-        email: client.email,
-        setor: client.setorPreferencia,
-        mesa: client.mesaPreferencia,
-        pulseira: client.pulseira,
-        entradaISO: start,
-        entradaDisplay: timeDisplay(start),
-        qrCode: client.qrCode
-      };
-      presentes.push(item);
+  /* limpar histórico */
+  document.getElementById("limparHistorico").addEventListener("click", () => {
+    if (confirm("Tem certeza que deseja limpar todo o histórico?")) {
+      historico = [];
       saveAll();
-      atualizarPresentes();
-      resEl.innerHTML = `<div style="color:#0a7">Entrada registrada: <strong>${client.nome}</strong> — ${timeDisplay(start)}</div>`;
-      return;
-    }
-
-    if (present) {
-      const out = nowISO();
-      const t = duration(present.entradaISO, out);
-      const rec = { ...present, saidaISO: out, tempo: t };
-      historico.unshift(rec);
-      const idx = presentes.findIndex(p => p.id === present.id);
-      if (idx > -1) presentes.splice(idx, 1);
-      saveAll();
-      atualizarPresentes();
       atualizarHistorico();
-      resEl.innerHTML = `<div style="color:#06c">Saída registrada: <strong>${present.nome}</strong> — ${timeDisplay(out)} (Permanência: ${t})</div>`;
+    }
+  });
+
+  /* Leitor QR */
+  let html5QrScanner = null;
+  const scannerDiv = document.getElementById("qrScanner");
+  const resultadoLeitura = document.getElementById("resultadoLeitura");
+  let ultimoIdLido = null;
+
+  document.getElementById("iniciarLeitor").addEventListener("click", () => {
+    if (html5QrScanner) return;
+    html5QrScanner = new Html5Qrcode("qrScanner");
+    Html5Qrcode.getCameras()
+      .then(devices => {
+        if (devices && devices.length) {
+          const cameraId = devices[0].id;
+          html5QrScanner.start(
+            cameraId,
+            { fps: 10, qrbox: 250 },
+            qrCodeMessage => {
+              resultadoLeitura.style.display = "block";
+              resultadoLeitura.textContent = `QR lido: ${qrCodeMessage}`;
+              ultimoIdLido = qrCodeMessage;
+              registrarEntradaSaida(qrCodeMessage);
+            },
+            err => {}
+          ).catch(err => alert(`Erro ao iniciar câmera: ${err}`));
+        } else {
+          alert("Nenhuma câmera encontrada.");
+        }
+      })
+      .catch(err => alert(`Erro ao acessar câmeras: ${err}`));
+  });
+
+  document.getElementById("pararLeitor").addEventListener("click", () => {
+    if (!html5QrScanner) return;
+    html5QrScanner.stop().then(() => {
+      html5QrScanner.clear();
+      html5QrScanner = null;
+      resultadoLeitura.style.display = "none";
+    });
+  });
+
+  /* teste leitura manual */
+  document.getElementById("testarLeitura").addEventListener("click", () => {
+    if (!ultimoIdLido) {
+      alert("Nenhum QR lido ainda.");
       return;
     }
+    registrarEntradaSaida(ultimoIdLido);
+  });
+
+  /* Registrar entrada e saída */
+  function registrarEntradaSaida(id) {
+    const cliente = clients.find(c => c.id === id);
+    if (!cliente) {
+      alert("Cadastro não encontrado para o ID informado.");
+      return;
+    }
+    const presenteIndex = presentes.findIndex(p => p.id === id);
+
+    if (presenteIndex === -1) {
+      // Registrar entrada
+      const registro = {
+        id: cliente.id,
+        nome: cliente.nome,
+        entrada: nowISO(),
+        saida: null,
+        setor: cliente.setor,
+      };
+      presentes.push(registro);
+      alert(`${cliente.nome} registrado(a) na entrada.`);
+    } else {
+      // Registrar saída
+      const registro = presentes[presenteIndex];
+      registro.saida = nowISO();
+
+      historico.push(registro);
+      presentes.splice(presenteIndex, 1);
+      alert(`${cliente.nome} registrado(a) na saída.`);
+    }
+    saveAll();
+    atualizarPresentes();
+    atualizarHistorico();
   }
 
-  /* marketing */
-  document.getElementById("selecionarTodos").onchange = function () { document.querySelectorAll(".clienteCheckbox").forEach(cb => cb.checked = this.checked); };
-  document.getElementById("imagemMarketing").onchange = function (e) {
-    const f = e.target.files[0], p = document.getElementById("previewImagem"); p.innerHTML = ""; if (!f) return; const img = document.createElement("img"); img.src = URL.createObjectURL(f); img.style.maxWidth = "160px"; img.style.borderRadius = "8px"; p.appendChild(img);
-  };
+  /* Marketing */
+  const listaMarketing = document.getElementById("listaClientesMarketing");
+  const selecionarTodos = document.getElementById("selecionarTodos");
+  const assuntoInput = document.getElementById("assuntoMarketing");
+  const mensagemInput = document.getElementById("mensagemMarketing");
+  const imagemInput = document.getElementById("imagemMarketing");
+  const previewImagem = document.getElementById("previewImagem");
 
-  function getSelectedClients() {
-    const ids = Array.from(document.querySelectorAll(".clienteCheckbox:checked")).map(cb => cb.dataset.id);
-    if (ids.length === 0) { if (!confirm("Nenhum cliente selecionado. Enviar para todos?")) return []; return clients.map(c => c.id); }
-    return ids;
+  function montarListaMarketing() {
+    listaMarketing.innerHTML = "";
+    if (clients.length === 0) {
+      listaMarketing.innerHTML = "<p>Nenhum cliente cadastrado.</p>";
+      return;
+    }
+    clients.forEach(c => {
+      const div = document.createElement("div");
+      div.className = "card-reg";
+      div.innerHTML = `
+        <label><input type="checkbox" data-id="${c.id}" /> ${c.nome} (${c.telefoneResp || "-"})</label>
+      `;
+      listaMarketing.appendChild(div);
+    });
+  }
+  montarListaMarketing();
+
+  selecionarTodos.addEventListener("change", () => {
+    const checkboxes = listaMarketing.querySelectorAll("input[type=checkbox]");
+    checkboxes.forEach(cb => cb.checked = selecionarTodos.checked);
+  });
+
+  /* enviar mensagens */
+  function enviarMensagem(tipo) {
+    const selecionados = Array.from(listaMarketing.querySelectorAll("input[type=checkbox]:checked"));
+    if (selecionados.length === 0) {
+      alert("Selecione ao menos um cliente.");
+      return;
+    }
+    const assunto = assuntoInput.value.trim();
+    const mensagem = mensagemInput.value.trim();
+    if (!mensagem) {
+      alert("Digite a mensagem.");
+      return;
+    }
+
+    selecionados.forEach(cb => {
+      const id = cb.dataset.id;
+      const cliente = clients.find(c => c.id === id);
+      if (!cliente) return;
+
+      if (tipo === "whatsapp") {
+        // Formatar mensagem e abrir URL para WhatsApp Web/APP
+        const msg = encodeURIComponent(`${assunto}\n\n${mensagem}`);
+        const telefone = cliente.telefoneResp || "";
+        if (!telefone) return;
+        window.open(`https://wa.me/${telefone}?text=${msg}`, "_blank");
+      } else if (tipo === "sms") {
+        alert("Envio de SMS não implementado (pode ser feito com APIs externas).");
+      } else if (tipo === "email") {
+        alert("Envio de Email não implementado (pode ser feito com APIs externas).");
+      }
+    });
   }
 
-  document.getElementById("enviarWhatsApp").onclick = async () => {
-    const ids = getSelectedClients(); if (!ids) return;
-    const subject = document.getElementById("assuntoMarketing").value || "";
-    const msg = document.getElementById("mensagemMarketing").value || "";
-    const file = document.getElement
+  document.getElementById("enviarWhatsApp").addEventListener("click", () => enviarMensagem("whatsapp"));
+  document.getElementById("enviarSMS").addEventListener("click", () => enviarMensagem("sms"));
+  document.getElementById("enviarEmail").addEventListener("click", () => enviarMensagem("email"));
+
+  /* preview imagem marketing */
+  imagemInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      previewImagem.innerHTML = "";
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    previewImagem.innerHTML = `<img src="${url}" alt="Preview Imagem Marketing" />`;
+  });
+
+  /* Abrir aba cadastro ao iniciar */
+  abrirAba("cadastro");
+
+});
