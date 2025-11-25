@@ -11,13 +11,13 @@
   <!-- external libs -->
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script defer src="https://unpkg.com/html5-qrcode@2.3.7/minified/html5-qrcode.min.js"></script>
-  <script defer src="script.js"></script>
 </head>
 <body>
+<!-- APP HTML (compact, use the code you provided) -->
 <div class="app">
   <header class="topbar">
     <div class="brand">
-      <img class="logo" src="IMG_2811.jpeg" alt="Terra do Sol Logo" />
+      <img class="logo" src="IMG_2811.jpeg" alt="Terra do Sol Logo">
       <div>
         <div class="brand-title">Terra do Sol</div>
         <div class="brand-sub">Gestão de Acessos • CRM</div>
@@ -34,24 +34,24 @@
   </header>
 
   <main class="main">
-    <!-- Cadastro -->
+    <!-- CADASTRO -->
     <section id="cadastro" class="panel active">
       <div class="card">
         <h2>Cadastro da Criança</h2>
 
         <div class="form-row">
           <label>Nome</label>
-          <input id="nomeCrianca" placeholder="Nome da criança" autocomplete="off" />
+          <input id="nomeCrianca" placeholder="Nome da criança" autocomplete="off">
         </div>
 
         <div class="form-row two-col">
           <div>
             <label>Data de nascimento</label>
-            <input type="date" id="dataNascimento" />
+            <input type="date" id="dataNascimento">
           </div>
           <div>
             <label>Idade (auto)</label>
-            <input id="idadeCrianca" type="number" placeholder="Idade" readonly />
+            <input id="idadeCrianca" type="number" placeholder="Idade" readonly>
           </div>
         </div>
 
@@ -71,32 +71,29 @@
 
         <div class="form-row">
           <label>Pode sair sozinho?</label>
-          <select id="podeSairSozinho">
-            <option value="nao">Não</option>
-            <option value="sim">Sim</option>
-          </select>
+          <select id="podeSairSozinho"><option value="nao">Não</option><option value="sim">Sim</option></select>
         </div>
 
-        <hr />
+        <hr>
 
         <h3>Responsável</h3>
         <div class="form-row">
           <label>Nome do responsável</label>
-          <input id="nomeResp" placeholder="Nome do responsável" />
+          <input id="nomeResp" placeholder="Nome do responsável">
         </div>
 
         <div class="form-row two-col">
           <div>
             <label>Telefone (DDI+DDD+Número)</label>
-            <input id="telefoneResp" placeholder="5511999999999" />
+            <input id="telefoneResp" placeholder="5511999999999">
           </div>
           <div>
             <label>Email</label>
-            <input id="emailResp" placeholder="email@exemplo.com" />
+            <input id="emailResp" placeholder="email@exemplo.com">
           </div>
         </div>
 
-        <hr />
+        <hr>
 
         <h3>Local</h3>
         <div class="setores">
@@ -107,18 +104,16 @@
 
         <div class="form-row">
           <label>Mesa</label>
-          <input id="numeroMesa" type="number" placeholder="Número da mesa" />
+          <input id="numeroMesa" type="number" placeholder="Número da mesa">
         </div>
 
-        <hr />
+        <hr>
 
         <div class="form-row">
           <label>Pulseira (automática)</label>
-          <input id="corPulseira" readonly placeholder="Cor automática" />
+          <input id="corPulseira" readonly placeholder="Cor automática">
         </div>
-        <div class="form-row small">
-          <label><input type="checkbox" id="manualPulseira" /> Seleção manual</label>
-        </div>
+        <div class="form-row small"><label><input type="checkbox" id="manualPulseira"> Seleção manual</label></div>
 
         <div class="qrcode-area">
           <div id="qrcodeGerado" class="qrcode-box" aria-hidden="true"></div>
@@ -135,13 +130,13 @@
       </div>
     </section>
 
-    <!-- Presentes -->
+    <!-- PRESENTES -->
     <section id="presentes" class="panel">
       <h2>Crianças Presentes</h2>
       <div id="listaPresentes" class="list"></div>
     </section>
 
-    <!-- Histórico -->
+    <!-- HISTÓRICO -->
     <section id="historico" class="panel">
       <h2>Histórico</h2>
       <div class="history-controls">
@@ -151,7 +146,7 @@
       <div id="listaHistorico" class="list"></div>
     </section>
 
-    <!-- Leitor QR -->
+    <!-- QR LEITOR -->
     <section id="qr" class="panel">
       <h2>Leitor de QR</h2>
       <div id="qrScanner" class="scanner" role="region" aria-label="QR scanner"></div>
@@ -165,16 +160,16 @@
       <small class="hint">Permita o uso da câmera e aponte para o QR gerado no cadastro (o QR contém apenas o ID).</small>
     </section>
 
-    <!-- Marketing -->
+    <!-- MARKETING -->
     <section id="marketing" class="panel">
       <h2>Marketing</h2>
       <div class="card">
-        <label><input type="checkbox" id="selecionarTodos" /> Selecionar todos</label>
+        <label><input type="checkbox" id="selecionarTodos"> Selecionar todos</label>
         <div id="listaClientesMarketing" class="list"></div>
 
         <div class="form-row">
           <label>Assunto</label>
-          <input id="assuntoMarketing" placeholder="Assunto" />
+          <input id="assuntoMarketing" placeholder="Assunto">
         </div>
         <div class="form-row">
           <label>Mensagem</label>
@@ -183,7 +178,7 @@
 
         <div class="form-row">
           <label>Imagem (opcional)</label>
-          <input type="file" id="imagemMarketing" accept="image/*" />
+          <input type="file" id="imagemMarketing" accept="image/*">
         </div>
         <div id="previewImagem" style="margin-top:8px"></div>
 
@@ -196,5 +191,7 @@
     </section>
   </main>
 </div>
+
+<script src="script.js" defer></script>
 </body>
 </html>
