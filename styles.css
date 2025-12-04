@@ -3,6 +3,9 @@
   --card:#ffffff;
   --accent:#2b7a78;
   --muted:#6b6b6b;
+  --salao:#2f76c6;      /* azul */
+  --coqueiro:#2bb673;   /* verde */
+  --guardasol:#f2994a;  /* laranja */
 }
 *{box-sizing:border-box;font-family:Inter, Roboto, system-ui, -apple-system, "Segoe UI", Arial;}
 body{
@@ -37,6 +40,10 @@ button.muted{background:transparent;color:var(--muted);border:1px solid #eee}
 .actions-row{margin-top:8px;display:flex;gap:8px}
 .logo-uploader{display:flex;align-items:center;gap:8px;margin-top:8px}
 #logo-preview img{max-height:40px;display:block}
+.post-badge{display:inline-block;padding:3px 6px;border-radius:4px;margin:2px;font-size:0.8rem;color:#fff}
+.post-salao{background:var(--salao)}
+.post-coq{background:var(--coqueiro)}
+.post-gsol{background:var(--guardasol)}
 @media (max-width:900px){
   main{flex-direction:column}
   header{flex-direction:column;align-items:flex-start;gap:8px}
