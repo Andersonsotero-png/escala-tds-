@@ -2,7 +2,7 @@ const garcons = [];
 const ajudantes = [];
 const recep = [];
 
-// Atualizar tudo
+// Atualizar listas
 function renderAll() {
 
     document.getElementById("weekLabel").textContent =
