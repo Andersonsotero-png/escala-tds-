@@ -1,119 +1,85 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <title>Escalas - Terra do Sol</title>
+:root {
+    --salon:#cfe8ff;
+    --coqueiro:#dff5d8;
+    --guardasol:#ffdacc;
+    --header:#e0e0e0;
+    --text:#222;
+}
 
-    <!-- CSS externo -->
-    <link rel="stylesheet" href="style.css">
+body {
+    font-family: Arial;
+    margin: 10px;
+    color: var(--text);
+}
 
-    <!-- Bibliotecas -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-</head>
+h1 { font-size: 20px; margin-bottom: 15px; }
 
-<body>
-<h1>Escalas - Terra do Sol (Offline)</h1>
+.controls button {
+    padding: 6px 12px;
+    margin-right: 5px;
+}
 
-<div class="controls">
-    <button id="loadSample">Carregar exemplo</button>
-    <button id="exportPdf">Gerar PDF</button>
-    <button id="exportExcel">Gerar Excel</button>
-    <button id="printBtn">Imprimir</button>
-</div>
+.panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
 
-<div class="panel">
+.card {
+    border: 1px solid #ddd;
+    padding: 10px;
+    background: #fafafa;
+    width: 330px;
+    border-radius: 6px;
+}
 
-    <!-- GARÇONS -->
-    <div class="card">
-        <strong>Garçons (3 setores)</strong>
+.flex {
+    display: flex;
+    gap: 6px;
+    margin-top: 5px;
+}
 
-        <label>Semana:</label>
-        <input id="weekRange" type="text" value="01/12/2025 - 07/12/2025"/>
+input, select {
+    padding: 5px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+}
 
-        <label>Adicionar entrada:</label>
-        <div class="flex">
-            <select id="gSector">
-                <option value="salon">Salão</option>
-                <option value="coq">Coqueiro</option>
-                <option value="gsol">Guarda-Sol</option>
-            </select>
-            <input id="gPosition" placeholder="SUP, DIR 01, ESQ 02..."/>
-            <input id="gName" placeholder="Nome"/>
-            <button id="addG">+</button>
-        </div>
+button {
+    cursor: pointer;
+}
 
-        <div class="small">Lista:</div>
-        <div id="gList" class="preview"></div>
-    </div>
+.small {
+    font-size: 12px;
+    margin-top: 6px;
+    color: #555;
+}
 
-    <!-- AJUDANTES -->
-    <div class="card">
-        <strong>Ajudantes</strong>
+.preview {
+    margin-top: 8px;
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+}
 
-        <label>Adicionar ajudante:</label>
-        <div class="flex">
-            <select id="aDay">
-                <option>SEG</option><option>TER</option><option>QUA</option><option>QUI</option>
-                <option>QN</option><option>SEX</option><option>SAB</option><option>DOM</option>
-            </select>
-            <select id="aShift"><option>Dia</option><option>Noite</option><option>Evento</option></select>
-            <input id="aName" placeholder="Nome"/>
-            <button id="addA">+</button>
-        </div>
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-bottom: 15px;
+}
 
-        <div class="small">Lista:</div>
-        <div id="aList" class="preview"></div>
-    </div>
+th, td {
+    border: 1px solid #bbb;
+    padding: 6px;
+}
 
-    <!-- RECEPCIONISTAS -->
-    <div class="card">
-        <strong>Recepcionistas</strong>
+th {
+    background: var(--header);
+}
 
-        <label>Adicionar recepcionista:</label>
-        <div class="flex">
-            <select id="rDay"><option>QUI</option><option>QN</option><option>SEX</option><option>SAB</option><option>DOM</option></select>
-            <input id="rName" placeholder="Nome"/>
-            <button id="addR">+</button>
-        </div>
-
-        <div class="small">Lista:</div>
-        <div id="rList" class="preview"></div>
-    </div>
-
-</div>
-
-<hr>
-
-<div id="exportArea">
-    <h2>Preview de Exportação</h2>
-
-    <!-- GARÇONS -->
-    <h3>GARÇONS - <span id="weekLabel"></span></h3>
-    <table id="tblGarcons">
-        <thead><tr><th>Setor</th><th>Posição</th><th>Nome</th></tr></thead>
-        <tbody></tbody>
-    </table>
-
-    <!-- AJUDANTES -->
-    <h3>AJUDANTES</h3>
-    <table id="tblAjudantes">
-        <thead><tr><th>Dia</th><th>Turno</th><th>Nome</th></tr></thead>
-        <tbody></tbody>
-    </table>
-
-    <!-- RECEPCIONISTAS -->
-    <h3>RECEPCIONISTAS</h3>
-    <table id="tblRecep">
-        <thead><tr><th>Dia</th><th>Nome</th></tr></thead>
-        <tbody></tbody>
-    </table>
-</div>
-
-<!-- JS externo -->
-<script src="script.js"></script>
-
-</body>
-</html>
+.sector-salon { background: var(--salon); }
+.sector-coq { background: var(--coqueiro); }
+.sector-gsol { background: var(--guardasol); }
