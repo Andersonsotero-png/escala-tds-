@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Escala Automática — Restaurante (Modo B)</title>
+  <link rel="stylesheet" href="styles.css" />
+  <meta name="theme-color" content="#2b7a78"/>
+  <link rel="manifest" href="manifest.json" />
+  <!-- Dependências (CDN) -->
+  <script src="https://unpkg.com/exceljs/dist/exceljs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Escala Automática — Restaurante (Modo B)</h1>
+    <div class="header-actions">
+      <button id="btn-generate">Gerar escala da próxima semana</button>
+      <button id="btn-export">Exportar / Imprimir</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="col left">
+      <h2>Funcionários</h2>
+      <form id="employee-form">
+        <input id="emp-name" placeholder="Nome" required />
+        <input id="emp-role" placeholder="Função (ex: Garçom, Cozinha)" required />
+        <div class="multi">
+          <label>Disponível (marque dias)</label>
+          <div class="days-checks">
+            <label><input type="checkbox" value="0">Seg</label>
+            <label><input type="checkbox" value="1">Ter</label>
+            <label><input type="checkbox" value="2">Qua</label>
+            <label><input type="checkbox" value="3">Qui</label>
+            <label><input type="checkbox" value="4">Sex</label>
+            <label><input type="checkbox" value="5">Sáb</label>
+            <label><input type="checkbox" value="6">Dom</label>
+          </div>
+        </div>
+
+        <div class="multi">
+          <label>Turnos disponíveis</label>
+          <label><input type="checkbox" value="manhã" class="shift-cb">Manhã</label>
+          <label><input type="checkbox" value="tarde" class="shift-cb">Tarde</label>
+          <label><input type="checkbox" value="noite" class="shift-cb">Noite</label>
+        </div>
+
+        <div class="multi small">
+          <label>Máx dias seguidos (padrão 6): <input id="emp-maxconsec" type="number" min="1" max="7" value="6"></label>
+        </div>
+
+        <button type="submit">Adicionar / Atualizar</button>
+        <button id="btn-clear-emps" type="button" class="muted">Limpar tudo</button>
+      </form>
+
+      <div id="employees-list" class="list"></div>
+    </section>
+
+    <section class="col right">
+      <h2>Configurar Regras & Requisitos</h2>
+
+      <div class="settings">
+        <label>Semana começa em: 
+          <select id="week-start">
+            <option value="0">Segunda</option>
+            <option value="5">Sábado</option>
+            <option value="4" selected>Sexta (gerar para próxima semana a cada Sexta)</option>
+          </select>
+        </label>
+
+        <label>Descanso mínimo por semana (folgas): 
+          <input id="min-days-off" type="number" min="0" max="7" value="1">
+        </label>
+
+        <label>Máx dias seguidos padrão:
+          <input id="max-consec-default" type="number" min="1" max="7" value="6">
+        </label>
+
+        <h3>Requisitos por turno</h3>
+        <table class="reqs">
+          <thead><tr><th>Turno</th><th>Quantidade</th><th>Requisições por função (ex: Cozinha:1; Caixa:1)</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Manhã</td>
+              <td><input class="req-count" data-shift="manhã" type="number" value="2" min="0"></td>
+              <td><input class="req-func" data-shift="manhã" placeholder="ex: Cozinha:1;Garçom:1"></td>
+            </tr>
+            <tr>
+              <td>Tarde</td>
+              <td><input class="req-count" data-shift="tarde" type="number" value="3" min="0"></td>
+              <td><input class="req-func" data-shift="tarde" placeholder="ex: Cozinha:1;Garçom:2"></td>
+            </tr>
+            <tr>
+              <td>Noite</td>
+              <td><input class="req-count" data-shift="noite" type="number" value="3" min="0"></td>
+              <td><input class="req-func" data-shift="noite" placeholder="ex: Cozinha:1;Garçom:2"></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="muted small">As requisições por função ajudam o algoritmo a garantir funções mínimas (ex: sempre pelo menos 1 Cozinha por turno).</div>
+
+        <h3>Logo da empresa</h3>
+        <div class="logo-uploader">
+          <input type="file" id="logo-file" accept="image/*">
+          <div id="logo-preview" class="muted small">Nenhuma logo carregada</div>
+          <button id="btn-clear-logo" type="button" class="muted">Remover logo</button>
+        </div>
+      </div>
+
+      <h2>Escala Gerada</h2>
+      <div id="schedule-area" class="schedule">
+        <!-- Escala aparece aqui -->
+      </div>
+
+      <div class="actions-row">
+        <button id="btn-save">Salvar Escala Atual</button>
+        <button id="btn-history">Mostrar Histórico</button>
+      </div>
+
+      <div id="history" class="list"></div>
+    </section>
+  </main>
+
+  <footer>
+    <small>Desenvolvido por você — modelo Modo B. Teste no celular e ajuste regras conforme a operação do restaurante.</small>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
