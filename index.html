@@ -6,7 +6,6 @@
   <title>Escala Automática — Restaurante (Modo B)</title>
   <link rel="stylesheet" href="styles.css" />
   <meta name="theme-color" content="#2b7a78"/>
-  <link rel="manifest" href="manifest.json" />
   <!-- Dependências (CDN) -->
   <script src="https://unpkg.com/exceljs/dist/exceljs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -15,7 +14,7 @@
 </head>
 <body>
   <header>
-    <h1>Escala Automática — Restaurante (Modo B)</h1>
+    <h1>Escala Automática — Garçons (Modo B)</h1>
     <div class="header-actions">
       <button id="btn-generate">Gerar escala da próxima semana</button>
       <button id="btn-export">Exportar / Imprimir</button>
@@ -27,7 +26,7 @@
       <h2>Funcionários</h2>
       <form id="employee-form">
         <input id="emp-name" placeholder="Nome" required />
-        <input id="emp-role" placeholder="Função (ex: Garçom, Cozinha)" required />
+        <input id="emp-role" placeholder="Função (ex: Garçom)" required />
         <div class="multi">
           <label>Disponível (marque dias)</label>
           <div class="days-checks">
@@ -60,10 +59,10 @@
     </section>
 
     <section class="col right">
-      <h2>Configurar Regras & Requisitos</h2>
+      <h2>Configurar Regras & Postos</h2>
 
       <div class="settings">
-        <label>Semana começa em: 
+        <label>Semana começa em:
           <select id="week-start">
             <option value="0">Segunda</option>
             <option value="5">Sábado</option>
@@ -71,7 +70,7 @@
           </select>
         </label>
 
-        <label>Descanso mínimo por semana (folgas): 
+        <label>Descanso mínimo por semana (folgas):
           <input id="min-days-off" type="number" min="0" max="7" value="1">
         </label>
 
@@ -79,29 +78,11 @@
           <input id="max-consec-default" type="number" min="1" max="7" value="6">
         </label>
 
-        <h3>Requisitos por turno</h3>
-        <table class="reqs">
-          <thead><tr><th>Turno</th><th>Quantidade</th><th>Requisições por função (ex: Cozinha:1; Caixa:1)</th></tr></thead>
-          <tbody>
-            <tr>
-              <td>Manhã</td>
-              <td><input class="req-count" data-shift="manhã" type="number" value="2" min="0"></td>
-              <td><input class="req-func" data-shift="manhã" placeholder="ex: Cozinha:1;Garçom:1"></td>
-            </tr>
-            <tr>
-              <td>Tarde</td>
-              <td><input class="req-count" data-shift="tarde" type="number" value="3" min="0"></td>
-              <td><input class="req-func" data-shift="tarde" placeholder="ex: Cozinha:1;Garçom:2"></td>
-            </tr>
-            <tr>
-              <td>Noite</td>
-              <td><input class="req-count" data-shift="noite" type="number" value="3" min="0"></td>
-              <td><input class="req-func" data-shift="noite" placeholder="ex: Cozinha:1;Garçom:2"></td>
-            </tr>
-          </tbody>
-        </table>
+        <h3>Postos por setor (detectados da escala)</h3>
+        <div id="sectors-list" class="muted small"></div>
 
-        <div class="muted small">As requisições por função ajudam o algoritmo a garantir funções mínimas (ex: sempre pelo menos 1 Cozinha por turno).</div>
+        <h3>Requisitos por turno (opcional)</h3>
+        <div class="muted small">Se quiser regras adicionais por função, edite o arquivo ou depois falamos.</div>
 
         <h3>Logo da empresa</h3>
         <div class="logo-uploader">
@@ -126,7 +107,7 @@
   </main>
 
   <footer>
-    <small>Desenvolvido por você — modelo Modo B. Teste no celular e ajuste regras conforme a operação do restaurante.</small>
+    <small>Desenvolvido por você — modelo Modo B. Teste no celular e ajuste regras conforme a operação.</small>
   </footer>
 
   <script src="app.js"></script>
