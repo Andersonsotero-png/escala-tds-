@@ -1,56 +1,54 @@
-// listas de dados
 const garcons = [];
 const ajudantes = [];
 const recep = [];
 
-// 🔄 RENDERIZAÇÃO
+// 🔄 Atualiza tudo na tela
 function renderAll() {
-    document.getElementById("weekLabel").textContent = document.getElementById("weekRange").value;
 
-    // Garçons
+    document.getElementById("weekLabel").textContent =
+        document.getElementById("weekRange").value;
+
+    // GARÇONS
     const gBody = document.querySelector("#tblGarcons tbody");
     gBody.innerHTML = "";
     garcons.forEach(g => {
         gBody.innerHTML += `
-            <tr>
-                <td class="sector-${g.sector}">${g.setor}</td>
-                <td>${g.posicao}</td>
-                <td>${g.nome}</td>
-            </tr>
-        `;
+        <tr>
+            <td class="sector-${g.sector}">${g.setor}</td>
+            <td>${g.posicao}</td>
+            <td>${g.nome}</td>
+        </tr>`;
     });
 
     document.getElementById("gList").innerHTML = garcons
         .map(g => `<div>${g.setor} • ${g.posicao} • ${g.nome}</div>`)
         .join("");
 
-    // Ajudantes
+    // AJUDANTES
     const aBody = document.querySelector("#tblAjudantes tbody");
     aBody.innerHTML = "";
     ajudantes.forEach(a => {
         aBody.innerHTML += `
-            <tr>
-                <td>${a.dia}</td>
-                <td>${a.turno}</td>
-                <td>${a.nome}</td>
-            </tr>
-        `;
+        <tr>
+            <td>${a.dia}</td>
+            <td>${a.turno}</td>
+            <td>${a.nome}</td>
+        </tr>`;
     });
 
     document.getElementById("aList").innerHTML = ajudantes
         .map(a => `<div>${a.dia} • ${a.turno} • ${a.nome}</div>`)
         .join("");
 
-    // Recepcionistas
+    // RECEPCIONISTAS
     const rBody = document.querySelector("#tblRecep tbody");
     rBody.innerHTML = "";
     recep.forEach(r => {
         rBody.innerHTML += `
-            <tr>
-                <td>${r.dia}</td>
-                <td>${r.nome}</td>
-            </tr>
-        `;
+        <tr>
+            <td>${r.dia}</td>
+            <td>${r.nome}</td>
+        </tr>`;
     });
 
     document.getElementById("rList").innerHTML = recep
@@ -58,17 +56,18 @@ function renderAll() {
         .join("");
 }
 
-// ➕ Adicionar GARÇOM
+// ➕ GARÇOM
 document.getElementById("addG").onclick = () => {
-    const setor = document.getElementById("gSector").value;
+    const setorVal = document.getElementById("gSector").value;
     const posicao = document.getElementById("gPosition").value.trim();
     const nome = document.getElementById("gName").value.trim();
 
     if (!posicao || !nome) return alert("Preencha posição e nome.");
 
     garcons.push({
-        setor: setor === "salon" ? "Salão" : setor === "coq" ? "Coqueiro" : "Guarda-Sol",
-        sector: setor,
+        setor: setorVal === "salon" ? "Salão" :
+               setorVal === "coq" ? "Coqueiro" : "Guarda-Sol",
+        sector: setorVal,
         posicao,
         nome
     });
@@ -78,7 +77,7 @@ document.getElementById("addG").onclick = () => {
     renderAll();
 };
 
-// ➕ Adicionar AJUDANTE
+// ➕ AJUDANTE
 document.getElementById("addA").onclick = () => {
     const dia = document.getElementById("aDay").value;
     const turno = document.getElementById("aShift").value;
@@ -91,7 +90,7 @@ document.getElementById("addA").onclick = () => {
     renderAll();
 };
 
-// ➕ Adicionar RECEPCIONISTA
+// ➕ RECEPCIONISTA
 document.getElementById("addR").onclick = () => {
     const dia = document.getElementById("rDay").value;
     const nome = document.getElementById("rName").value.trim();
@@ -103,39 +102,30 @@ document.getElementById("addR").onclick = () => {
     renderAll();
 };
 
-// 📄 GERAR PDF
+// 📄 PDF
 document.getElementById("exportPdf").onclick = async () => {
     const area = document.getElementById("exportArea");
-
     const canvas = await html2canvas(area, { scale: 2 });
-    const imgData = canvas.toDataURL("image/png");
+    const img = canvas.toDataURL("image/png");
 
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF("p", "mm", "a4");
 
     const width = pdf.internal.pageSize.getWidth();
-    const imgProps = pdf.getImageProperties(imgData);
-    const height = (imgProps.height * width) / imgProps.width;
+    const props = pdf.getImageProperties(img);
+    const height = (props.height * width) / props.width;
 
-    pdf.addImage(imgData, "PNG", 0, 5, width, height);
+    pdf.addImage(img, "PNG", 0, 5, width, height);
     pdf.save("Escala_Terra_do_Sol.pdf");
 };
 
-// 📊 GERAR EXCEL
+// 📊 EXCEL
 document.getElementById("exportExcel").onclick = () => {
     const wb = XLSX.utils.book_new();
 
-    // Garçons
-    const gSheet = XLSX.utils.json_to_sheet(garcons);
-    XLSX.utils.book_append_sheet(wb, gSheet, "Garçons");
-
-    // Ajudantes
-    const aSheet = XLSX.utils.json_to_sheet(ajudantes);
-    XLSX.utils.book_append_sheet(wb, aSheet, "Ajudantes");
-
-    // Recepcionistas
-    const rSheet = XLSX.utils.json_to_sheet(recep);
-    XLSX.utils.book_append_sheet(wb, rSheet, "Recepcionistas");
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(garcons), "Garçons");
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(ajudantes), "Ajudantes");
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(recep), "Recepcionistas");
 
     XLSX.writeFile(wb, "Escala_Terra_do_Sol.xlsx");
 };
