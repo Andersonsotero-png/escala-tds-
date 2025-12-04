@@ -1,115 +1,119 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Escala Automática — Restaurante (Modo B)</title>
-  <link rel="stylesheet" href="styles.css" />
-  <meta name="theme-color" content="#2b7a78"/>
-  <!-- Dependências (CDN) -->
-  <script src="https://unpkg.com/exceljs/dist/exceljs.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Escalas - Terra do Sol</title>
+
+    <!-- CSS externo -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Bibliotecas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
+
 <body>
-  <header>
-    <h1>Escala Automática — Garçons (Modo B)</h1>
-    <div class="header-actions">
-      <button id="btn-generate">Gerar escala da próxima semana</button>
-      <button id="btn-export">Exportar / Imprimir</button>
+<h1>Escalas - Terra do Sol (Offline)</h1>
+
+<div class="controls">
+    <button id="loadSample">Carregar exemplo</button>
+    <button id="exportPdf">Gerar PDF</button>
+    <button id="exportExcel">Gerar Excel</button>
+    <button id="printBtn">Imprimir</button>
+</div>
+
+<div class="panel">
+
+    <!-- GARÇONS -->
+    <div class="card">
+        <strong>Garçons (3 setores)</strong>
+
+        <label>Semana:</label>
+        <input id="weekRange" type="text" value="01/12/2025 - 07/12/2025"/>
+
+        <label>Adicionar entrada:</label>
+        <div class="flex">
+            <select id="gSector">
+                <option value="salon">Salão</option>
+                <option value="coq">Coqueiro</option>
+                <option value="gsol">Guarda-Sol</option>
+            </select>
+            <input id="gPosition" placeholder="SUP, DIR 01, ESQ 02..."/>
+            <input id="gName" placeholder="Nome"/>
+            <button id="addG">+</button>
+        </div>
+
+        <div class="small">Lista:</div>
+        <div id="gList" class="preview"></div>
     </div>
-  </header>
 
-  <main>
-    <section class="col left">
-      <h2>Funcionários</h2>
-      <form id="employee-form">
-        <input id="emp-name" placeholder="Nome" required />
-        <input id="emp-role" placeholder="Função (ex: Garçom)" required />
-        <div class="multi">
-          <label>Disponível (marque dias)</label>
-          <div class="days-checks">
-            <label><input type="checkbox" value="0">Seg</label>
-            <label><input type="checkbox" value="1">Ter</label>
-            <label><input type="checkbox" value="2">Qua</label>
-            <label><input type="checkbox" value="3">Qui</label>
-            <label><input type="checkbox" value="4">Sex</label>
-            <label><input type="checkbox" value="5">Sáb</label>
-            <label><input type="checkbox" value="6">Dom</label>
-          </div>
+    <!-- AJUDANTES -->
+    <div class="card">
+        <strong>Ajudantes</strong>
+
+        <label>Adicionar ajudante:</label>
+        <div class="flex">
+            <select id="aDay">
+                <option>SEG</option><option>TER</option><option>QUA</option><option>QUI</option>
+                <option>QN</option><option>SEX</option><option>SAB</option><option>DOM</option>
+            </select>
+            <select id="aShift"><option>Dia</option><option>Noite</option><option>Evento</option></select>
+            <input id="aName" placeholder="Nome"/>
+            <button id="addA">+</button>
         </div>
 
-        <div class="multi">
-          <label>Turnos disponíveis</label>
-          <label><input type="checkbox" value="manhã" class="shift-cb">Manhã</label>
-          <label><input type="checkbox" value="tarde" class="shift-cb">Tarde</label>
-          <label><input type="checkbox" value="noite" class="shift-cb">Noite</label>
+        <div class="small">Lista:</div>
+        <div id="aList" class="preview"></div>
+    </div>
+
+    <!-- RECEPCIONISTAS -->
+    <div class="card">
+        <strong>Recepcionistas</strong>
+
+        <label>Adicionar recepcionista:</label>
+        <div class="flex">
+            <select id="rDay"><option>QUI</option><option>QN</option><option>SEX</option><option>SAB</option><option>DOM</option></select>
+            <input id="rName" placeholder="Nome"/>
+            <button id="addR">+</button>
         </div>
 
-        <div class="multi small">
-          <label>Máx dias seguidos (padrão 6): <input id="emp-maxconsec" type="number" min="1" max="7" value="6"></label>
-        </div>
+        <div class="small">Lista:</div>
+        <div id="rList" class="preview"></div>
+    </div>
 
-        <button type="submit">Adicionar / Atualizar</button>
-        <button id="btn-clear-emps" type="button" class="muted">Limpar tudo</button>
-      </form>
+</div>
 
-      <div id="employees-list" class="list"></div>
-    </section>
+<hr>
 
-    <section class="col right">
-      <h2>Configurar Regras & Postos</h2>
+<div id="exportArea">
+    <h2>Preview de Exportação</h2>
 
-      <div class="settings">
-        <label>Semana começa em:
-          <select id="week-start">
-            <option value="0">Segunda</option>
-            <option value="5">Sábado</option>
-            <option value="4" selected>Sexta (gerar para próxima semana a cada Sexta)</option>
-          </select>
-        </label>
+    <!-- GARÇONS -->
+    <h3>GARÇONS - <span id="weekLabel"></span></h3>
+    <table id="tblGarcons">
+        <thead><tr><th>Setor</th><th>Posição</th><th>Nome</th></tr></thead>
+        <tbody></tbody>
+    </table>
 
-        <label>Descanso mínimo por semana (folgas):
-          <input id="min-days-off" type="number" min="0" max="7" value="1">
-        </label>
+    <!-- AJUDANTES -->
+    <h3>AJUDANTES</h3>
+    <table id="tblAjudantes">
+        <thead><tr><th>Dia</th><th>Turno</th><th>Nome</th></tr></thead>
+        <tbody></tbody>
+    </table>
 
-        <label>Máx dias seguidos padrão:
-          <input id="max-consec-default" type="number" min="1" max="7" value="6">
-        </label>
+    <!-- RECEPCIONISTAS -->
+    <h3>RECEPCIONISTAS</h3>
+    <table id="tblRecep">
+        <thead><tr><th>Dia</th><th>Nome</th></tr></thead>
+        <tbody></tbody>
+    </table>
+</div>
 
-        <h3>Postos por setor (detectados da escala)</h3>
-        <div id="sectors-list" class="muted small"></div>
+<!-- JS externo -->
+<script src="script.js"></script>
 
-        <h3>Requisitos por turno (opcional)</h3>
-        <div class="muted small">Se quiser regras adicionais por função, edite o arquivo ou depois falamos.</div>
-
-        <h3>Logo da empresa</h3>
-        <div class="logo-uploader">
-          <input type="file" id="logo-file" accept="image/*">
-          <div id="logo-preview" class="muted small">Nenhuma logo carregada</div>
-          <button id="btn-clear-logo" type="button" class="muted">Remover logo</button>
-        </div>
-      </div>
-
-      <h2>Escala Gerada</h2>
-      <div id="schedule-area" class="schedule">
-        <!-- Escala aparece aqui -->
-      </div>
-
-      <div class="actions-row">
-        <button id="btn-save">Salvar Escala Atual</button>
-        <button id="btn-history">Mostrar Histórico</button>
-      </div>
-
-      <div id="history" class="list"></div>
-    </section>
-  </main>
-
-  <footer>
-    <small>Desenvolvido por você — modelo Modo B. Teste no celular e ajuste regras conforme a operação.</small>
-  </footer>
-
-  <script src="app.js"></script>
 </body>
 </html>
