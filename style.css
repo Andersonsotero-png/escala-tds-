@@ -1,4 +1,4 @@
-/* Bloquear modo escuro no iPhone */
+/* Forçar modo claro no iPhone */
 html, body {
     background: #ffffff !important;
     color: #000000 !important;
@@ -6,7 +6,7 @@ html, body {
     color-scheme: light !important;
 }
 
-/* Cores oficiais */
+/* Cores */
 :root {
     --salon:#cfe8ff;
     --coqueiro:#dff5d8;
@@ -21,7 +21,7 @@ body {
     color: var(--text);
 }
 
-h1 { font-size: 20px; margin-bottom: 15px; }
+h1 { font-size: 22px; margin-bottom: 15px; }
 
 .controls button {
     padding: 6px 12px;
@@ -54,9 +54,15 @@ input, select {
     border-radius: 4px;
 }
 
-button { cursor: pointer; }
+button {
+    cursor: pointer;
+}
 
-.small { font-size: 12px; margin-top: 6px; color: #555; }
+.small {
+    font-size: 12px;
+    margin-top: 6px;
+    color: #555;
+}
 
 .preview {
     background: #fff;
@@ -67,11 +73,12 @@ button { cursor: pointer; }
     margin-top: 8px;
 }
 
+/* TABELAS */
 table {
     width: 100%;
     border-collapse: collapse;
+    margin-top: 10px;
     font-size: 12px;
-    margin-bottom: 15px;
 }
 
 th, td {
@@ -79,8 +86,11 @@ th, td {
     padding: 6px;
 }
 
-th { background: var(--header); }
+th {
+    background: var(--header);
+}
 
+/* Setores coloridos */
 .sector-salon { background: var(--salon); }
 .sector-coq { background: var(--coqueiro); }
 .sector-gsol { background: var(--guardasol); }
