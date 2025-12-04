@@ -1,3 +1,12 @@
+/* Bloquear modo escuro no iPhone */
+html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    forced-color-adjust: none !important;
+    color-scheme: light !important;
+}
+
+/* Cores oficiais */
 :root {
     --salon:#cfe8ff;
     --coqueiro:#dff5d8;
@@ -45,23 +54,17 @@ input, select {
     border-radius: 4px;
 }
 
-button {
-    cursor: pointer;
-}
+button { cursor: pointer; }
 
-.small {
-    font-size: 12px;
-    margin-top: 6px;
-    color: #555;
-}
+.small { font-size: 12px; margin-top: 6px; color: #555; }
 
 .preview {
-    margin-top: 8px;
     background: #fff;
     border: 1px solid #ccc;
     padding: 6px;
     max-height: 200px;
     overflow-y: auto;
+    margin-top: 8px;
 }
 
 table {
@@ -76,9 +79,7 @@ th, td {
     padding: 6px;
 }
 
-th {
-    background: var(--header);
-}
+th { background: var(--header); }
 
 .sector-salon { background: var(--salon); }
 .sector-coq { background: var(--coqueiro); }
