@@ -2,7 +2,7 @@ const garcons = [];
 const ajudantes = [];
 const recep = [];
 
-// 🔄 Atualiza tudo na tela
+// Atualizar tudo
 function renderAll() {
 
     document.getElementById("weekLabel").textContent =
@@ -102,7 +102,7 @@ document.getElementById("addR").onclick = () => {
     renderAll();
 };
 
-// 📄 PDF
+// PDF
 document.getElementById("exportPdf").onclick = async () => {
     const area = document.getElementById("exportArea");
     const canvas = await html2canvas(area, { scale: 2 });
@@ -119,7 +119,7 @@ document.getElementById("exportPdf").onclick = async () => {
     pdf.save("Escala_Terra_do_Sol.pdf");
 };
 
-// 📊 EXCEL
+// Excel
 document.getElementById("exportExcel").onclick = () => {
     const wb = XLSX.utils.book_new();
 
@@ -130,7 +130,7 @@ document.getElementById("exportExcel").onclick = () => {
     XLSX.writeFile(wb, "Escala_Terra_do_Sol.xlsx");
 };
 
-// 🖨️ IMPRIMIR
+// Imprimir
 document.getElementById("printBtn").onclick = () => window.print();
 
 renderAll();
