@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Escala Terra do Sol</title>
-  <link rel="stylesheet" href="style.css"/>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escala Terra do Sol</title>
+<link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
 
 <header class="app-header">
@@ -29,7 +28,7 @@
   <div class="card">
     <label>Nome do colaborador</label>
     <div class="inline">
-      <input id="input-nome" type="text" placeholder="Ex: João, Ana..." />
+      <input id="input-nome" type="text" placeholder="Ex: João, Ana...">
       <button id="btn-add" class="primary">Adicionar</button>
     </div>
   </div>
@@ -40,29 +39,31 @@
   </div>
 </section>
 
+
 <!-- ESCALA DO DIA -->
 <section id="tab-dia" class="tab-section">
   <h2>Escala do Dia</h2>
 
   <div class="card">
     <label>Data</label>
-    <input type="date" id="data-dia"/>
+    <input type="date" id="data-dia">
   </div>
 
   <div class="card">
-    <h3>Quem está presente hoje?</h3>
+    <h3>Quem está presente?</h3>
     <ul id="lista-presenca" class="list"></ul>
   </div>
 
-  <button id="btn-gerar-dia" class="primary">Gerar Escala</button>
+  <button id="btn-gerar" class="primary">Gerar Escala</button>
 
   <div class="card">
     <h3>Pré-visualização</h3>
-    <div id="preview-dia" class="preview">Nenhuma escala gerada ainda.</div>
+    <div id="preview" class="preview">Nenhuma escala gerada ainda.</div>
     <button id="btn-imprimir" class="secondary" disabled>Imprimir</button>
-    <button id="btn-salvar" class="primary" disabled>Salvar no Histórico</button>
+    <button id="btn-salvar" class="primary" disabled>Salvar Histórico</button>
   </div>
 </section>
+
 
 <!-- HISTÓRICO -->
 <section id="tab-historico" class="tab-section">
@@ -71,13 +72,14 @@
   <button id="btn-apagar-historico" class="danger">Apagar Histórico</button>
 </section>
 
+
 <!-- CONFIG -->
 <section id="tab-config" class="tab-section">
   <h2>Configurações</h2>
 
   <div class="card">
-    <h3>Logo da Barraca</h3>
-    <input type="file" id="input-logo" accept="image/*"/>
+    <h3>Logo</h3>
+    <input type="file" id="input-logo" accept="image/*">
     <div id="logo-preview" class="logo-preview">Nenhuma logo carregada</div>
     <button id="btn-remover-logo" class="danger">Remover logo</button>
   </div>
