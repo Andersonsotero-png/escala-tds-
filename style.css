@@ -1,60 +1,85 @@
 body { font-family: Arial; margin:0; background:#f2f2f2; }
 
+/* Header */
 .app-header {
-  background:#ff9f0a;
+  background:#ff7a00;
   color:white;
-  padding:14px;
-  font-size:22px;
+  padding:15px;
   text-align:center;
+  font-size:22px;
+  font-weight:bold;
 }
 
-.tabs { display:flex; background:white; border-bottom:1px solid #ccc; }
-.tab-button {
-  flex:1;
-  padding:10px;
-  border:none;
+/* Tabs */
+.tabs {
+  display:flex;
   background:white;
+  border-bottom:2px solid #ddd;
+}
+.tab-button {
+  flex:1; padding:12px; border:none; background:white;
 }
 .tab-button.active {
-  background:#ffd8a8;
+  background:#ffe6c2;
   border-bottom:3px solid #ff7a00;
   font-weight:bold;
 }
 
+/* Cards */
 .card {
   background:white;
-  padding:12px;
-  margin:10px;
-  border-radius:8px;
+  margin:12px;
+  padding:14px;
+  border-radius:10px;
+  border-left:5px solid #00857A;
 }
 
+/* Lists */
 .list { list-style:none; padding:0; }
-.list li { padding:6px; border-bottom:1px solid #ddd; }
+.list li { padding:8px; border-bottom:1px solid #ddd; display:flex; justify-content:space-between; }
 
+/* Buttons */
 .primary, .secondary, .danger {
-  width:100%; padding:10px; border-radius:6px;
-  border:none; margin-top:8px; font-size:15px;
+  width:100%; padding:10px; margin-top:10px;
+  font-weight:bold;
+  border-radius:8px;
+  border:none;
 }
-
-.primary { background:#ff9500; color:white; }
-.secondary { background:#ddd; color:black; }
+.primary { background:#00857A; color:white; }
+.secondary { background:#ff7a00; color:white; }
 .danger { background:#ff3b30; color:white; }
 
-.preview { background:white; min-height:120px; padding:10px; border-radius:6px; }
+/* Input */
+input[type=text], input[type=date]{
+  padding:10px; width:100%; border:1px solid #aaa; border-radius:6px;
+}
+.inline{ display:flex; gap:6px; }
 
-.inline { display:flex; gap:6px; }
+/* Preview */
+.preview{
+  background:white; min-height:130px;
+  border:2px solid #00857A;
+  border-radius:8px; padding:10px;
+}
 
+/* Modal */
 .modal {
   position:fixed; top:0; left:0; width:100%; height:100%;
-  background:#00000088;
-  display:flex; justify-content:center; align-items:center;
+  background:#00000088; display:flex; align-items:center; justify-content:center;
 }
-.modal.hidden { display:none; }
-
-.modal-content {
-  background:white; padding:20px; border-radius:10px; width:85%;
+.modal.hidden{ display:none; }
+.modal-content{
+  width:85%; background:white; padding:20px; border-radius:12px;
+  border-top:6px solid #00857A;
 }
 
-.logo-preview img { max-width:200px; display:block; margin:auto; }
+/* Logo */
+.logo-preview img, .doc-logo{
+  max-width:200px; display:block; margin:auto;
+}
 
-.doc-logo { max-width:220px; display:block; margin:auto; }
+/* Print */
+@media print{
+  .tabs, button, .app-header { display:none !important; }
+  body{ background:white; }
+}
