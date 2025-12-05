@@ -2,38 +2,34 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Escala Terra do Sol</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css"/>
 </head>
+
 <body>
 
 <header class="app-header">
-  <span class="logo-mini">🌞</span>
-  <div>
-    <h1>Terra do Sol</h1>
-    <p>Gerador de Escalas</p>
-  </div>
+  <h1>🌞 Terra do Sol</h1>
 </header>
 
 <nav class="tabs">
-  <button class="tab-button active" data-target="equipes">Equipe</button>
-  <button class="tab-button" data-target="diaria">Escala do Dia</button>
-  <button class="tab-button" data-target="semana">Semana</button>
-  <button class="tab-button" data-target="historico">Histórico</button>
-  <button class="tab-button" data-target="config">Configurações</button>
+  <button class="tab-button active" data-target="tab-equipe">Equipe</button>
+  <button class="tab-button" data-target="tab-dia">Escala do Dia</button>
+  <button class="tab-button" data-target="tab-historico">Histórico</button>
+  <button class="tab-button" data-target="tab-config">Configurações</button>
 </nav>
 
 <main>
 
 <!-- EQUIPE -->
-<section id="equipes" class="tab-section active">
+<section id="tab-equipe" class="tab-section active">
   <h2>Cadastro da Equipe</h2>
 
   <div class="card">
     <label>Nome do colaborador</label>
-    <div class="inline-form">
-      <input id="input-nome" type="text" placeholder="Ex: Paulo, Ana..." />
+    <div class="inline">
+      <input id="input-nome" type="text" placeholder="Ex: João, Ana..." />
       <button id="btn-add" class="primary">Adicionar</button>
     </div>
   </div>
@@ -45,16 +41,16 @@
 </section>
 
 <!-- ESCALA DO DIA -->
-<section id="diaria" class="tab-section">
+<section id="tab-dia" class="tab-section">
   <h2>Escala do Dia</h2>
 
   <div class="card">
     <label>Data</label>
-    <input type="date" id="data-dia">
+    <input type="date" id="data-dia"/>
   </div>
 
   <div class="card">
-    <h3>Presença de Hoje</h3>
+    <h3>Quem está presente hoje?</h3>
     <ul id="lista-presenca" class="list"></ul>
   </div>
 
@@ -62,45 +58,27 @@
 
   <div class="card">
     <h3>Pré-visualização</h3>
-    <div id="preview-dia" class="preview"></div>
-    <button id="btn-imprimir-dia" class="secondary" disabled>Imprimir</button>
-    <button id="btn-salvar-hist" class="primary" disabled>Salvar no Histórico</button>
-  </div>
-</section>
-
-<!-- SEMANA -->
-<section id="semana" class="tab-section">
-  <h2>Escala da Semana</h2>
-
-  <div class="card">
-    <label>Data Inicial</label>
-    <input type="date" id="data-semana">
-  </div>
-
-  <button id="btn-gerar-semana" class="primary">Gerar Semana</button>
-
-  <div class="card">
-    <h3>Pré-visualização</h3>
-    <div id="preview-semana" class="preview"></div>
-    <button id="btn-imprimir-semana" class="secondary" disabled>Imprimir</button>
+    <div id="preview-dia" class="preview">Nenhuma escala gerada ainda.</div>
+    <button id="btn-imprimir" class="secondary" disabled>Imprimir</button>
+    <button id="btn-salvar" class="primary" disabled>Salvar no Histórico</button>
   </div>
 </section>
 
 <!-- HISTÓRICO -->
-<section id="historico" class="tab-section">
+<section id="tab-historico" class="tab-section">
   <h2>Histórico</h2>
   <ul id="lista-historico" class="list"></ul>
-  <button id="btn-apagar-historico" class="danger">Apagar histórico</button>
+  <button id="btn-apagar-historico" class="danger">Apagar Histórico</button>
 </section>
 
 <!-- CONFIG -->
-<section id="config" class="tab-section">
+<section id="tab-config" class="tab-section">
   <h2>Configurações</h2>
 
   <div class="card">
     <h3>Logo da Barraca</h3>
-    <input type="file" id="input-logo" accept="image/*" />
-    <div id="logo-preview" class="logo-preview"></div>
+    <input type="file" id="input-logo" accept="image/*"/>
+    <div id="logo-preview" class="logo-preview">Nenhuma logo carregada</div>
     <button id="btn-remover-logo" class="danger">Remover logo</button>
   </div>
 </section>
@@ -108,9 +86,9 @@
 </main>
 
 <!-- MODAL -->
-<div id="modal-edicao" class="modal hidden">
+<div id="modal" class="modal hidden">
   <div class="modal-content">
-    <h3 id="modal-titulo"></h3>
+    <h3 id="modal-title"></h3>
     <div id="modal-lista"></div>
     <button id="modal-salvar" class="primary">Salvar</button>
     <button id="modal-fechar" class="secondary">Cancelar</button>
@@ -118,6 +96,7 @@
 </div>
 
 <div id="print-area"></div>
+
 <script src="script.js"></script>
 </body>
 </html>
