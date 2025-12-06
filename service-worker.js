@@ -1,34 +1,40 @@
-const CACHE_NAME = "escala-ajudantes-v6";
+const CACHE_VERSION = "terra-do-sol-v4"; // <<< MUDEI A VERSÃO (mantém app atualizado automaticamente)
 
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
-  "./style.css?v=6",
-  "./script.js?v=6",
-  "./manifest.json"
+  "./style.css",
+  "./script.js",
+  "./manifest.json",
+  "./icons/icon-192.png",
+  "./icons/icon-512.png"
 ];
 
-// Instala o cache
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
-  );
+self.addEventListener("install", event => {
   self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_VERSION).then(cache => cache.addAll(FILES_TO_CACHE))
+  );
 });
 
-// Ativa e limpa versões antigas
-self.addEventListener("activate", (event) => {
+self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.map(key => key !== CACHE_NAME ? caches.delete(key) : null))
+      Promise.all(keys.map(key => key !== CACHE_VERSION && caches.delete(key)))
     )
   );
   self.clients.claim();
 });
 
-// Serve conteúdo offline
-self.addEventListener("fetch", (event) => {
+// Atualiza sempre que houver arquivo novo
+self.addEventListener("fetch", event => {
   event.respondWith(
-    caches.match(event.request).then(resp => resp || fetch(event.request))
+    fetch(event.request)
+      .then(response => {
+        const clone = response.clone();
+        caches.open(CACHE_VERSION).then(cache => cache.put(event.request, clone));
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
