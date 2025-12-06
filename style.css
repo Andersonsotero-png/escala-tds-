@@ -82,6 +82,11 @@ h2 {
   margin-bottom: 8px;
 }
 
+h3 {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
 .tab-section {
   display: none;
   margin-top: 10px;
@@ -102,6 +107,7 @@ h2 {
 
 .card-header-row {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   margin-bottom: 8px;
 }
@@ -109,77 +115,218 @@ h2 {
 .badge {
   background: #fee2e2;
   color: #b91c1c;
-  padding: 3px 8px;
   border-radius: 999px;
+  padding: 3px 8px;
   font-size: 12px;
 }
 
-/* Inputs */
-input[type="text"], input[type="date"], select {
-  width: 100%;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #d1d5db;
-  margin-top: 5px;
-  font-size: 14px;
+/* Formulários */
+label {
+  font-size: 13px;
+  margin-bottom: 4px;
+  display: block;
+  font-weight: 600;
+  color: #374151;
 }
 
-select {
-  cursor: pointer;
+input[type="text"],
+input[type="date"] {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  outline: none;
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus {
+  border-color: #f97316;
+  box-shadow: 0 0 0 1px rgba(249,115,22,0.3);
 }
 
 .inline-form {
   display: flex;
   gap: 8px;
+  margin-top: 4px;
+}
+
+.inline-form input {
+  flex: 1;
+}
+
+/* NOVOS CAMPOS PERSONALIZÁVEIS */
+.card input[type="text"] {
+  margin-bottom: 8px;
+}
+
+.card input[type="text"]::placeholder {
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.card label {
   margin-top: 6px;
 }
 
 /* Botões */
 button {
-  padding: 8px 14px;
   border-radius: 999px;
+  padding: 8px 14px;
   border: none;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
 }
 
 button.primary {
   background: #f97316;
-  color: white;
+  color: #fff;
+}
+
+button.primary:disabled {
+  background: #fbbf24;
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 button.secondary {
   background: #e5e7eb;
-  color: black;
+  color: #111827;
 }
 
 button.danger {
   background: #ef4444;
-  color: white;
+  color: #fff;
 }
 
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+button.small {
+  font-size: 11px;
+  padding: 4px 10px;
 }
 
-/* Preview escala */
-.preview-area {
-  border: 1px solid #d1d5db;
-  padding: 10px;
+.actions-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.actions-row button {
+  flex: 1;
+  min-width: 140px;
+}
+
+/* Listas */
+.list {
+  list-style: none;
+}
+
+.list-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.list-item-row:last-child {
+  border-bottom: none;
+}
+
+.list-item-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.list-item-main span.nome {
+  font-size: 14px;
+}
+
+.list-item-main small {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.list-item-actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* Tip */
+.tip {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+/* Logo preview */
+.logo-preview-wrapper {
+  margin-top: 8px;
+}
+
+.logo-preview {
+  width: 100%;
+  min-height: 80px;
   border-radius: 8px;
-  background: #fafafa;
+  border: 1px dashed #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
 }
 
-/* Edição drag */
-.editar-item {
+.logo-preview img {
+  max-width: 260px;
+  max-height: 120px;
+  object-fit: contain;
+}
+
+/* Preview da escala */
+.preview-card h3 {
+  margin-bottom: 10px;
+}
+
+.preview-area {
+  background: #f9fafb;
+  border-radius: 10px;
   padding: 10px;
-  background: #fff;
-  border: 1px solid #dedede;
-  margin-bottom: 6px;
-  border-radius: 6px;
-  cursor: grab;
+  min-height: 120px;
+  border: 1px solid #e5e7eb;
+  overflow-x: auto;
+}
+
+.preview-area.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+}
+
+/* Tabelas */
+.escala-documento {
+  background: #ffffff;
+  max-width: 800px;
+  margin: 0 auto;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  font-size: 13px;
+  color: #111827;
+}
+
+.escala-header {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.escala-header img {
+  max-width: 220px;
+  max-height: 110px;
+  object-fit: contain;
+  margin-bottom: 4px;
 }
 
 /* Impressão */
@@ -187,6 +334,7 @@ button:disabled {
   header, nav, main {
     display: none !important;
   }
+
   #print-area {
     display: block;
   }
