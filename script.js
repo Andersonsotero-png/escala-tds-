@@ -1,160 +1,253 @@
-// --- STORAGE ---
-const STORAGE = {
-  equipe: "tds_equipe",
-  logo: "tds_logo",
-  historico: "tds_hist"
+// ========= UTILIDADES =========
+function formatDateISO(date) {
+  return date.toISOString().slice(0, 10);
+}
+function formatDateBR(dateStr) {
+  if (!dateStr) return "";
+  const [y, m, d] = dateStr.split("-");
+  return `${d}/${m}/${y}`;
+}
+const diasSemana = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+function weekdayName(dateStr) {
+  if (!dateStr) return "";
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return diasSemana[new Date(y, m - 1, d).getDay()];
+}
+
+// ========= LOCALSTORAGE =========
+const STORAGE_KEYS = {
+  FUNC: "tds_funcionarios",
+  LOGO: "tds_logo",
+  HIST: "tds_historico"
 };
 
-let equipe = JSON.parse(localStorage.getItem(STORAGE.equipe) || "[]");
-let historico = JSON.parse(localStorage.getItem(STORAGE.historico) || "{}");
-let logoData = localStorage.getItem(STORAGE.logo) || null;
+function loadFuncionarios() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEYS.FUNC) || "[]");
+}
+function saveFuncionarios(list) {
+  localStorage.setItem(STORAGE_KEYS.FUNC, JSON.stringify(list));
+}
 
-// --- RENDER EQUIPE ---
-function renderEquipe(){
-  const lista = document.getElementById("lista-funcionarios");
-  const total = document.getElementById("total-funcionarios");
-  lista.innerHTML = "";
+function loadLogo() {
+  return localStorage.getItem(STORAGE_KEYS.LOGO);
+}
+function saveLogo(data) {
+  if (data) localStorage.setItem(STORAGE_KEYS.LOGO, data);
+  else localStorage.removeItem(STORAGE_KEYS.LOGO);
+}
 
-  equipe.sort((a,b)=>a.localeCompare(b)).forEach(nome=>{
+function loadHistorico() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEYS.HIST) || "{}");
+}
+function saveHistorico(h) {
+  localStorage.setItem(STORAGE_KEYS.HIST, JSON.stringify(h));
+}
+
+
+// ========= ESTADOS =========
+let funcionarios = loadFuncionarios();
+let resultadoFinal = null;
+
+
+// ========= TABS =========
+document.querySelectorAll(".tab-button").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-section").forEach(sec => sec.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById(btn.dataset.target).classList.add("active");
+  };
+});
+
+
+// ========= EQUIPE =========
+const listaFuncionariosEl = document.getElementById("lista-funcionarios");
+const totalFuncionariosEl = document.getElementById("total-funcionarios");
+
+function renderFuncionarios() {
+  listaFuncionariosEl.innerHTML = "";
+  if (funcionarios.length === 0) {
+    listaFuncionariosEl.innerHTML = "<li>Nenhum colaborador cadastrado.</li>";
+  } else {
+    funcionarios.sort((a,b)=>a.nome.localeCompare(b.nome)).forEach(f => {
+      const li = document.createElement("li");
+      li.className = "list-item-row";
+      li.innerHTML = `
+        <div class="list-item-main"><span class="nome">${f.nome}</span></div>
+        <button class="danger small">Remover</button>
+      `;
+      li.querySelector("button").onclick = () => {
+        if (confirm(`Remover ${f.nome}?`)) {
+          funcionarios = funcionarios.filter(x => x.id !== f.id);
+          saveFuncionarios(funcionarios);
+          renderFuncionarios();
+          renderPresenca();
+        }
+      };
+      listaFuncionariosEl.appendChild(li);
+    });
+  }
+  totalFuncionariosEl.textContent = funcionarios.length;
+}
+
+document.getElementById("form-add-funcionario").onsubmit = e => {
+  e.preventDefault();
+  const nome = document.getElementById("nome-funcionario").value.trim();
+  if (!nome) return;
+  funcionarios.push({id: Date.now(), nome});
+  saveFuncionarios(funcionarios);
+  document.getElementById("nome-funcionario").value="";
+  renderFuncionarios();
+  renderPresenca();
+};
+
+renderFuncionarios();
+
+
+// ========= PRESENÇA =========
+const listaPresencaEl = document.getElementById("lista-presenca");
+
+function renderPresenca() {
+  listaPresencaEl.innerHTML = "";
+  funcionarios.sort((a,b)=>a.nome.localeCompare(b.nome)).forEach(f => {
     const li = document.createElement("li");
     li.className="list-item-row";
     li.innerHTML = `
-      <span>${nome}</span>
-      <button class="danger small" onclick="remover('${nome}')">X</button>
-    `;
-    lista.appendChild(li);
-  });
-
-  total.textContent = equipe.length;
-}
-
-// --- REMOVER ---
-function remover(nome){
-  equipe = equipe.filter(n=>n!==nome);
-  localStorage.setItem(STORAGE.equipe, JSON.stringify(equipe));
-  renderEquipe();
-  renderPresenca();
-}
-
-// --- ADICIONAR ---
-document.getElementById("form-add-funcionario").addEventListener("submit", e=>{
-  e.preventDefault();
-  const nome = document.getElementById("nome-funcionario").value.trim();
-  if(!nome) return;
-  equipe.push(nome);
-  localStorage.setItem(STORAGE.equipe, JSON.stringify(equipe));
-  document.getElementById("nome-funcionario").value="";
-  renderEquipe();
-  renderPresenca();
-});
-
-// --- PRESENÇA ---
-function renderPresenca(){
-  const ul = document.getElementById("lista-presenca");
-  const total = document.getElementById("total-presentes");
-  ul.innerHTML="";
-
-  equipe.forEach(nome=>{
-    const li=document.createElement("li");
-    li.className="list-item-row";
-    li.innerHTML=`
-      <label style="display:flex;align-items:center;gap:10px">
-        <input type="checkbox" value="${nome}">
-        ${nome}
+      <label class="list-item-main">
+        <input type="checkbox" data-id="${f.id}"> ${f.nome}
       </label>
     `;
-    ul.appendChild(li);
+    listaPresencaEl.appendChild(li);
   });
-
-  ul.addEventListener("change",()=>{
-    total.textContent = getPresentes().length;
-  });
-
-  total.textContent="0";
+  updateSelects();
 }
 
-function getPresentes(){
-  return [...document.querySelectorAll("#lista-presenca input:checked")].map(e=>e.value);
+function getPresentes() {
+  return [...document.querySelectorAll("#lista-presenca input:checked")]
+    .map(chk => funcionarios.find(f=>f.id==chk.dataset.id));
 }
 
-// --- GERAR ESCALA ---
-document.getElementById("btn-gerar").addEventListener("click", ()=>{
+renderPresenca();
+
+
+// ========= SELECTS (APENAS PRESENTES — OPCÃO A) =========
+const selects = {
+  bar1: document.getElementById("sel-bar1"),
+  bar2: document.getElementById("sel-bar2"),
+  a1: document.getElementById("sel-a1"),
+  a2: document.getElementById("sel-a2"),
+  l1: document.getElementById("sel-l1"),
+  l2: document.getElementById("sel-l2"),
+  l3: document.getElementById("sel-l3"),
+  ap1: document.getElementById("sel-ap1"),
+  ap2: document.getElementById("sel-ap2"),
+  ap3: document.getElementById("sel-ap3")
+};
+
+function updateSelects() {
   const presentes = getPresentes();
-  if(presentes.length===0) return alert("Selecione pelo menos 1 nome!");
+  Object.values(selects).forEach(sel=>{
+    sel.innerHTML="";
+    presentes.forEach(p=>{
+      const opt=document.createElement("option");
+      opt.value=p.nome;
+      opt.textContent=p.nome;
+      sel.appendChild(opt);
+    });
+  });
+}
 
-  // auto preenchimento
-  document.getElementById("edit-t1").value = presentes.slice(0,Math.ceil(presentes.length/2)).join(", ");
-  document.getElementById("edit-t2").value = presentes.slice(Math.ceil(presentes.length/2)).join(", ");
-  
-  document.getElementById("lanche1").value = presentes.join(", ");
-  document.getElementById("lanche2").value = "";
-  document.getElementById("lanche3").value = "";
+listaPresencaEl.onchange = updateSelects;
 
-  document.getElementById("setor1").value = presentes[0]||"";
-  document.getElementById("setor2").value = presentes[1]||"";
-  document.getElementById("setor3").value = presentes[2]||"";
 
-  document.getElementById("bar1").value = presentes[0]||"";
-  document.getElementById("bar2").value = presentes[1]||"";
+// ========= PREVIEW & IMPRESSÃO =========
+const preview = document.getElementById("preview-dia");
+const printArea = document.getElementById("print-area");
 
-  gerarPreview();
-});
+document.getElementById("btn-imprimir-dia").onclick = () => {
+  if (!resultadoFinal) return alert("Gere primeiro!");
 
-// --- PREVIEW ---
-function gerarPreview(){
-  const preview=document.getElementById("preview");
+  printArea.innerHTML = preview.innerHTML;
+  window.print();
+};
+
+function gerarPreview() {
+  const data = document.getElementById("data-dia").value;
+  if (!data) return alert("Selecione a data!");
+
+  resultadoFinal = {
+    data,
+    bar1: selects.bar1.value,
+    bar2: selects.bar2.value,
+    almoco1: [...selects.a1.selectedOptions].map(o=>o.value),
+    almoco2: [...selects.a2.selectedOptions].map(o=>o.value),
+    lanche1: [...selects.l1.selectedOptions].map(o=>o.value),
+    lanche2: [...selects.l2.selectedOptions].map(o=>o.value),
+    lanche3: [...selects.l3.selectedOptions].map(o=>o.value),
+    ap1: selects.ap1.value,
+    ap2: selects.ap2.value,
+    ap3: selects.ap3.value
+  };
+
   preview.classList.remove("empty");
-
   preview.innerHTML = `
     <div class="escala-documento">
-      ${logoData ? `<img src="${logoData}" style="max-width:120px;margin:auto;display:block">` : ""}
-      <h2>Escala Terra do Sol</h2>
-      <p>${document.getElementById("data-dia").value}</p>
+
+      <header class="escala-header">
+        ${loadLogo() ? `<img src="${loadLogo()}">` : ""}
+        <h1>BARRACA TERRA DO SOL</h1>
+        <h2>Escala Operacional do Dia</h2>
+        <p>${weekdayName(data)} — ${formatDateBR(data)}</p>
+      </header>
 
       <h3>🍽 Almoço</h3>
-      1ª turma: ${document.getElementById("edit-t1").value}<br>
-      2ª turma: ${document.getElementById("edit-t2").value}<br><br>
+      <p><strong>Turma 1:</strong> ${resultadoFinal.almoco1.join(", ") || "—"}</p>
+      <p><strong>Turma 2:</strong> ${resultadoFinal.almoco2.join(", ") || "—"}</p>
 
       <h3>☕ Lanche</h3>
-      1ª: ${document.getElementById("lanche1").value}<br>
-      2ª: ${document.getElementById("lanche2").value}<br>
-      3ª: ${document.getElementById("lanche3").value}<br><br>
+      <p><strong>T1:</strong> ${resultadoFinal.lanche1.join(", ") || "—"}</p>
+      <p><strong>T2:</strong> ${resultadoFinal.lanche2.join(", ") || "—"}</p>
+      <p><strong>T3:</strong> ${resultadoFinal.lanche3.join(", ") || "—"}</p>
 
       <h3>🧺 Aparadores</h3>
-      Setor1: ${document.getElementById("setor1").value}<br>
-      Setor2: ${document.getElementById("setor2").value}<br>
-      Setor3: ${document.getElementById("setor3").value}<br><br>
+      <p>Setor 1 → ${resultadoFinal.ap1 || "—"}</p>
+      <p>Setor 2 → ${resultadoFinal.ap2 || "—"}</p>
+      <p>Setor 3 → ${resultadoFinal.ap3 || "—"}</p>
 
       <h3>🍹 Bar</h3>
-      Bar1: ${document.getElementById("bar1").value}<br>
-      Bar2: ${document.getElementById("bar2").value}<br>
+      <p>Bar 1 → ${resultadoFinal.bar1 || "—"}</p>
+      <p>Bar 2 → ${resultadoFinal.bar2 || "—"}</p>
+
     </div>
   `;
 
-  document.getElementById("btn-imprimir").disabled=false;
+  document.getElementById("btn-imprimir-dia").classList.remove("disabled");
 }
 
-// --- IMPRESSÃO ---
-document.getElementById("btn-imprimir").addEventListener("click", ()=>{
-  localStorage.setItem(STORAGE.historico, JSON.stringify(historico));
-  const printArea=document.getElementById("print-area");
-  printArea.innerHTML=document.getElementById("preview").innerHTML;
-  window.print();
-});
+document.getElementById("btn-imprimir-dia").disabled = false;
 
-// --- LOGO ---
-document.getElementById("input-logo").addEventListener("change", e=>{
+
+// ========= LOGO =========
+document.getElementById("input-logo").onchange = e => {
   const file=e.target.files[0];
-  const reader=new FileReader();
-  reader.onload=()=>{ 
-    logoData=reader.result;
-    localStorage.setItem(STORAGE.logo, logoData);
-    document.getElementById("logo-preview").innerHTML=`<img src="${logoData}" />`;
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = ev => {
+    saveLogo(ev.target.result);
+    renderLogo();
   };
   reader.readAsDataURL(file);
-});
+};
 
-// --- INIT ---
-renderEquipe();
-renderPresenca();
-if(logoData) document.getElementById("logo-preview").innerHTML=`<img src="${logoData}">`;
+document.getElementById("btn-remover-logo").onclick = ()=>{
+  saveLogo(null);
+  renderLogo();
+};
+
+function renderLogo(){
+  const area=document.getElementById("logo-preview-container");
+  const data=loadLogo();
+  area.innerHTML = data ? `<img src="${data}" />`:"<p>Nenhuma logo selecionada</p>";
+}
+renderLogo();
