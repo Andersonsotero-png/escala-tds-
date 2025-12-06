@@ -1,10 +1,13 @@
 {
-  "name": "Escala Ajudantes",
-  "short_name": "Escala",
-  "start_url": "./",
+  "name": "Escala Terra do Sol",
+  "short_name": "Escala TDS",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#ff7a00",
+  "background_color": "#ffffff",
   "theme_color": "#ff7a00",
+  "orientation": "portrait-primary",
+  "description": "Aplicativo para organização da escala de almoço, lanche, bar e aparadores da Barraca Terra do Sol.",
   "icons": [
     {
       "src": "icons/icon-192.png",
