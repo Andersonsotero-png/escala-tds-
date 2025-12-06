@@ -8,9 +8,7 @@
 </head>
 <body>
   <header class="app-header">
-    <div class="logo-mini">
-      <span>🌞</span>
-    </div>
+    <div class="logo-mini">🌞</div>
     <div class="title-group">
       <h1>Terra do Sol</h1>
       <p>Escala de Almoço, Lanche e Aparadores</p>
@@ -20,14 +18,13 @@
   <nav class="tabs">
     <button class="tab-button active" data-target="section-equipe">Equipe</button>
     <button class="tab-button" data-target="section-dia">Escala do Dia</button>
-    <button class="tab-button" data-target="section-semana">Semana</button>
     <button class="tab-button" data-target="section-historico">Histórico</button>
     <button class="tab-button" data-target="section-config">Configurações</button>
   </nav>
 
   <main>
 
-    <!-- ================== EQUIPE ================== -->
+    <!-- === EQUIPE === -->
     <section id="section-equipe" class="tab-section active">
       <h2>Cadastro de Equipe</h2>
 
@@ -48,100 +45,91 @@
       </div>
     </section>
 
-
-
-    <!-- ================== ESCALA DO DIA ================== -->
+    <!-- === ESCALA === -->
     <section id="section-dia" class="tab-section">
       <h2>Escala do Dia</h2>
 
       <div class="card">
-        <label for="data-dia">Data da escala</label>
+        <label>Selecione a data</label>
         <input type="date" id="data-dia" />
       </div>
 
       <div class="card">
         <div class="card-header-row">
-          <h3>Quem está presente hoje?</h3>
+          <h3>Quem está presente?</h3>
           <span id="total-presentes" class="badge">0</span>
         </div>
         <ul id="lista-presenca" class="list"></ul>
       </div>
 
-
-      <!-- NOVA ÁREA DE CONFIGURAÇÕES PERSONALIZÁVEIS -->
+      <!-- CAMPOS EDITÁVEIS -->
       <div class="card">
-        <h3>Funções do Dia</h3>
+        <h3>Funções do dia</h3>
 
-        <label> 🍽 Almoço — 1ª Turma</label>
-        <input type="text" id="quant-t1" placeholder="Exemplo: Ana, João, Pedro">
+        <label>🍽 Almoço — 1ª turma</label>
+        <input id="edit-t1" type="text" placeholder="Auto ou editável">
 
-        <label> 🍽 Almoço — 2ª Turma</label>
-        <input type="text" id="quant-t2" placeholder="Exemplo: Maria, Paulo">
+        <label>🍽 Almoço — 2ª turma</label>
+        <input id="edit-t2" type="text" placeholder="Auto ou editável">
+
+        <label>☕ Lanche — 1ª turma</label>
+        <input id="lanche1" type="text">
+
+        <label>☕ Lanche — 2ª turma</label>
+        <input id="lanche2" type="text">
+
+        <label>☕ Lanche — 3ª turma</label>
+        <input id="lanche3" type="text">
 
         <label>🧺 Setor 1 — Salão + Coqueiro Direito</label>
-        <input type="text" id="setor1" placeholder="Quem fica aqui?">
+        <input id="setor1" type="text">
 
         <label>🧺 Setor 2 — Praia Direita + Parquinho</label>
-        <input type="text" id="setor2" placeholder="Quem fica aqui?">
+        <input id="setor2" type="text">
 
         <label>🧺 Setor 3 — Coqueiro Esquerdo + Praia Esquerda</label>
-        <input type="text" id="setor3" placeholder="Quem fica aqui?">
+        <input id="setor3" type="text">
 
         <label>🍹 Bar — Posição 1</label>
-        <input type="text" id="bar1" placeholder="Exemplo: Lucas">
+        <input id="bar1" type="text">
 
         <label>🍹 Bar — Posição 2</label>
-        <input type="text" id="bar2" placeholder="Exemplo: Vitória">
+        <input id="bar2" type="text">
       </div>
 
       <div class="actions-row">
-        <button id="btn-gerar-dia" class="primary">Gerar escala</button>
-        <button id="btn-imprimir-dia" class="secondary" disabled>Imprimir</button>
+        <button id="btn-gerar" class="primary">Gerar Escala</button>
+        <button id="btn-imprimir" class="secondary" disabled>Imprimir</button>
       </div>
 
       <section class="card preview-card">
-        <h3>Pré-Visualização</h3>
-        <div id="preview-dia" class="preview-area empty">
-          <p>Nenhuma escala gerada.</p>
+        <h3>Prévia</h3>
+        <div id="preview" class="preview-area empty">
+          <p>Nenhuma escala gerada ainda.</p>
         </div>
       </section>
     </section>
 
-
-
-    <!-- ================== SEMANA ================== -->
-    <section id="section-semana" class="tab-section">
-      <h2>Escala da Semana</h2>
-      <p style="opacity:.6">⚠ Modo semanal ainda usa rodízio automático.</p>
-    </section>
-
-
-
-    <!-- ================== HISTÓRICO ================== -->
+    <!-- === HISTÓRICO === -->
     <section id="section-historico" class="tab-section">
       <h2>Histórico</h2>
       <ul id="lista-historico" class="list"></ul>
-      <button id="btn-apagar-historico" class="danger">Apagar histórico</button>
+      <button id="btn-limpar-hist" class="danger">Apagar histórico</button>
     </section>
 
-
-
-    <!-- ================== CONFIG ================== -->
+    <!-- === CONFIG === -->
     <section id="section-config" class="tab-section">
       <h2>Configurações</h2>
 
       <div class="card">
-        <label>Logo da Barraca</label>
+        <label>Logo para impressão</label>
         <input type="file" accept="image/*" id="input-logo">
-        <div class="logo-preview" id="logo-preview-container">Nenhuma logo carregada</div>
-        <button id="btn-remover-logo" class="secondary">Remover logo</button>
+        <div id="logo-preview" class="logo-preview">Nenhuma logo carregada</div>
       </div>
-
     </section>
 
   </main>
 
-  <!-- Área invisível para impressão -->
   <div id="print-area"></div>
 
   <script src="script.js"></script>
