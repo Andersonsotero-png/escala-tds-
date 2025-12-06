@@ -1,46 +1,43 @@
-/************************************
- * SISTEMA DE ABAS
- ************************************/
-function configurarAbas() {
-  const botoes = document.querySelectorAll(".tab-button");
-  const secoes = document.querySelectorAll(".tab-section");
-
-  botoes.forEach(botao => {
-    botao.addEventListener("click", () => {
-      botoes.forEach(b => b.classList.remove("active"));
-      botao.classList.add("active");
-      secoes.forEach(sec => sec.classList.remove("active"));
-      document.getElementById(botao.dataset.target).classList.add("active");
-    });
-  });
-}
-
-/************************************
- * LOCAL STORAGE KEYS
- ************************************/
+/**************************************************
+ * VARIÁVEIS E STORAGE
+ **************************************************/
 const STORAGE = {
   FUNC: "escala_funcionarios",
   LOGO: "escala_logo",
   HIST: "escala_historico"
 };
 
-/************************************
- * ESTADO
- ************************************/
 let funcionarios = JSON.parse(localStorage.getItem(STORAGE.FUNC) || "[]");
-let ultimoDia = null;
+let historico = JSON.parse(localStorage.getItem(STORAGE.HIST) || "{}");
+let ultimoResultado = null;
 
-/************************************
- * RENDER DE LISTAS
- ************************************/
+/**************************************************
+ * TABS
+ **************************************************/
+document.querySelectorAll(".tab-button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    document.querySelectorAll(".tab-section").forEach(sec => sec.classList.remove("active"));
+    document.getElementById(btn.dataset.target).classList.add("active");
+  });
+});
+
+/**************************************************
+ * RENDER LISTA DE FUNCIONÁRIOS
+ **************************************************/
 const listaFuncionariosEl = document.getElementById("lista-funcionarios");
 const totalFuncionariosEl = document.getElementById("total-funcionarios");
 
+function salvarFuncionarios() {
+  localStorage.setItem(STORAGE.FUNC, JSON.stringify(funcionarios));
+}
+
 function renderFuncionarios() {
   listaFuncionariosEl.innerHTML = "";
-
   if (funcionarios.length === 0) {
-    listaFuncionariosEl.innerHTML = "<li>Nenhum cadastrado</li>";
+    listaFuncionariosEl.innerHTML = "<li>Nenhum colaborador cadastrado.</li>";
     totalFuncionariosEl.textContent = "0";
     return;
   }
@@ -51,54 +48,49 @@ function renderFuncionarios() {
     const li = document.createElement("li");
     li.className = "list-item-row";
     li.innerHTML = `
-      <div class="list-item-main">
-        <span>${nome}</span>
-      </div>
-      <button class="danger small remover">Excluir</button>
+      <div class="list-item-main">${nome}</div>
+      <button class="danger small">Remover</button>
     `;
-    li.querySelector(".remover").addEventListener("click", () => removerFuncionario(nome));
+
+    li.querySelector("button").addEventListener("click", () => {
+      if (confirm(`Remover ${nome}?`)) {
+        funcionarios = funcionarios.filter(f => f !== nome);
+        salvarFuncionarios();
+        renderFuncionarios();
+        renderPresenca();
+      }
+    });
+
     listaFuncionariosEl.appendChild(li);
   });
 
   totalFuncionariosEl.textContent = funcionarios.length;
 }
 
-function removerFuncionario(nome) {
-  if (confirm(`Remover ${nome}?`)) {
-    funcionarios = funcionarios.filter(n => n !== nome);
-    localStorage.setItem(STORAGE.FUNC, JSON.stringify(funcionarios));
-    renderFuncionarios();
-    renderPresenca();
-  }
-}
-
-/************************************
+/**************************************************
  * ADICIONAR FUNCIONÁRIO
- ************************************/
+ **************************************************/
 document.getElementById("form-add-funcionario").addEventListener("submit", e => {
   e.preventDefault();
-  const nome = document.getElementById("nome-funcionario").value.trim();
+  const inp = document.getElementById("nome-funcionario");
+  const nome = inp.value.trim();
   if (!nome) return;
-
+  
   funcionarios.push(nome);
-  localStorage.setItem(STORAGE.FUNC, JSON.stringify(funcionarios));
-
-  document.getElementById("nome-funcionario").value = "";
+  salvarFuncionarios();
+  inp.value = "";
   renderFuncionarios();
   renderPresenca();
 });
 
-/************************************
+/**************************************************
  * PRESENÇA
- ************************************/
+ **************************************************/
 const listaPresencaEl = document.getElementById("lista-presenca");
 const totalPresentesEl = document.getElementById("total-presentes");
 
 function renderPresenca() {
   listaPresencaEl.innerHTML = "";
-
-  funcionarios.sort((a, b) => a.localeCompare(b, "pt-BR"));
-
   funcionarios.forEach(nome => {
     const li = document.createElement("li");
     li.className = "list-item-row";
@@ -110,31 +102,23 @@ function renderPresenca() {
     `;
     listaPresencaEl.appendChild(li);
   });
-
-  atualizarTotalPresentes();
+  atualizarPresentes();
 }
 
-function atualizarTotalPresentes() {
-  const checks = listaPresencaEl.querySelectorAll("input[type='checkbox']");
-  totalPresentesEl.textContent = [...checks].filter(c => c.checked).length;
+function atualizarPresentes() {
+  const checked = listaPresencaEl.querySelectorAll("input:checked").length;
+  totalPresentesEl.textContent = checked;
 }
 
-listaPresencaEl.addEventListener("change", atualizarTotalPresentes);
+listaPresencaEl.addEventListener("change", atualizarPresentes);
 
-/************************************
+/**************************************************
  * GERAR ESCALA
- ************************************/
-const previewDiaEl = document.getElementById("preview-dia");
-const printArea = document.getElementById("print-area");
-
+ **************************************************/
 function gerarEscala() {
-  const checkboxes = listaPresencaEl.querySelectorAll("input:checked");
-  const presentes = [...checkboxes].map(c => c.dataset.nome);
+  const presentes = [...listaPresencaEl.querySelectorAll("input:checked")].map(c => c.dataset.nome);
 
-  if (presentes.length === 0) {
-    alert("Selecione os presentes.");
-    return;
-  }
+  if (presentes.length === 0) return alert("Selecione pelo menos 1 pessoa.");
 
   const q1 = Number(document.getElementById("q1").value) || 0;
   const q2 = Number(document.getElementById("q2").value) || 0;
@@ -143,54 +127,140 @@ function gerarEscala() {
   const turma2 = presentes.slice(q1, q1 + q2);
   const resto = presentes.slice(q1 + q2);
 
-  ultimoDia = { turma1, turma2, resto, data: document.getElementById("data-dia").value };
+  ultimoResultado = {
+    data: document.getElementById("data-dia").value || new Date().toISOString().split("T")[0],
+    almoco: { turma1, turma2 },
+    lanche: [...resto],
+    bar: resto.slice(0,2),
+    aparadores: resto.slice(2,5)
+  };
 
   renderPreview();
 }
 
-/************************************
- * PREVIEW E IMPRESSÃO
- ************************************/
+document.getElementById("btn-gerar-dia").addEventListener("click", gerarEscala);
+
+/**************************************************
+ * PREVIEW SAÍDA
+ **************************************************/
+const previewDiaEl = document.getElementById("preview-dia");
+
 function renderPreview() {
-  previewDiaEl.innerHTML = `
-    <h3>🍽 Almoço</h3>
-    <p><strong>1ª Turma:</strong> ${ultimoDia.turma1.join(", ") || "—"}</p>
-    <p><strong>2ª Turma:</strong> ${ultimoDia.turma2.join(", ") || "—"}</p>
-    <h3>Outros Setores</h3>
-    <p>${ultimoDia.resto.join(", ") || "—"}</p>
-  `;
+  if (!ultimoResultado) return;
 
   previewDiaEl.classList.remove("empty");
+  previewDiaEl.innerHTML = `
+    <strong>Data:</strong> ${ultimoResultado.data}<br><br>
+
+    🍽 <b>Almoço</b> <button class="edit-btn" data-edit="almoco">Editar</button><br>
+    → 1ª Turma: ${ultimoResultado.almoco.turma1.join(", ") || "—"}<br>
+    → 2ª Turma: ${ultimoResultado.almoco.turma2.join(", ") || "—"}<br><br>
+
+    ☕ <b>Lanche</b> <button class="edit-btn" data-edit="lanche">Editar</button><br>
+    → ${ultimoResultado.lanche.join(", ") || "—"}<br><br>
+
+    🍹 <b>Bar</b> <button class="edit-btn" data-edit="bar">Editar</button><br>
+    → ${ultimoResultado.bar.join(", ") || "—"}<br><br>
+
+    🧺 <b>Aparadores</b> <button class="edit-btn" data-edit="aparadores">Editar</button><br>
+    → ${ultimoResultado.aparadores.join(", ") || "—"}<br>
+  `;
+
   document.getElementById("btn-imprimir-dia").disabled = false;
 }
 
-document.getElementById("btn-gerar-dia").addEventListener("click", gerarEscala);
+/**************************************************
+ * MODAL DE EDIÇÃO
+ **************************************************/
+const modal = document.getElementById("edit-modal");
+const modalList = document.getElementById("modal-list");
+const modalTitle = document.getElementById("modal-title");
 
-document.getElementById("btn-imprimir-dia").addEventListener("click", () => {
-  printArea.innerHTML = previewDiaEl.innerHTML;
-  window.print();
+let campoEditando = null;
+
+document.addEventListener("click", e => {
+  if (e.target.classList.contains("edit-btn")) {
+    campoEditando = e.target.dataset.edit;
+    abrirModal();
+  }
 });
 
-/************************************
+function abrirModal() {
+  modalList.innerHTML = "";
+  modalTitle.textContent = `Editar ${campoEditando.toUpperCase()}`;
+
+  const todos = [...listaPresencaEl.querySelectorAll("input")]
+    .map(i => i.dataset.nome);
+
+  const selecionados = [...ultimoResultado[campoEditando]];
+
+  todos.forEach(nome => {
+    const li = document.createElement("li");
+    li.draggable = true;
+    li.innerHTML = `
+      <span style="display:flex;gap:10px;align-items:center">
+        <input type="checkbox" ${selecionados.includes(nome) ? "checked" : ""}>
+        ${nome}
+      </span>
+      ⠿
+    `;
+
+    li.querySelector("input").dataset.nome = nome;
+
+    modalList.appendChild(li);
+  });
+
+  ativarDrag();
+  modal.classList.remove("hidden");
+}
+
+modal.addEventListener("click", e => {
+  if (e.target === modal) modal.classList.add("hidden"); 
+});
+
+/**************************************************
+ * DRAG & DROP
+ **************************************************/
+function ativarDrag() {
+  let dragging = null;
+
+  modalList.querySelectorAll("li").forEach(li => {
+    li.addEventListener("dragstart", () => dragging = li);
+    li.addEventListener("dragover", e => e.preventDefault());
+    li.addEventListener("drop", () => {
+      modalList.insertBefore(dragging, li);
+    });
+  });
+}
+
+/**************************************************
+ * SALVAR MODAL
+ **************************************************/
+document.getElementById("save-modal").addEventListener("click", () => {
+  const selecionados = [...modalList.querySelectorAll("input:checked")].map(i => i.dataset.nome);
+  ultimoResultado[campoEditando] = selecionados;
+  modal.classList.add("hidden");
+  renderPreview();
+});
+
+/**************************************************
  * LOGO
- ************************************/
+ **************************************************/
 const inputLogo = document.getElementById("input-logo");
-const logoPreview = document.getElementById("logo-preview-container");
+const previewLogo = document.getElementById("logo-preview-container");
 
 function renderLogo() {
   const logo = localStorage.getItem(STORAGE.LOGO);
-  logoPreview.innerHTML = logo ? `<img src="${logo}">` : `<p>Nenhuma logo selecionada.</p>`;
+  previewLogo.innerHTML = logo ? `<img src="${logo}">` : "Nenhuma logo ainda.";
 }
 
 inputLogo.addEventListener("change", e => {
-  const file = e.target.files[0];
-  if (!file) return;
   const reader = new FileReader();
-  reader.onload = data => {
-    localStorage.setItem(STORAGE.LOGO, data.target.result);
+  reader.onload = r => {
+    localStorage.setItem(STORAGE.LOGO, r.target.result);
     renderLogo();
   };
-  reader.readAsDataURL(file);
+  reader.readAsDataURL(e.target.files[0]);
 });
 
 document.getElementById("btn-remover-logo").addEventListener("click", () => {
@@ -198,14 +268,28 @@ document.getElementById("btn-remover-logo").addEventListener("click", () => {
   renderLogo();
 });
 
-/************************************
+/**************************************************
+ * IMPRESSÃO
+ **************************************************/
+document.getElementById("btn-imprimir-dia").addEventListener("click", () => {
+  const logo = localStorage.getItem(STORAGE.LOGO);
+  const printArea = document.getElementById("print-area");
+
+  printArea.innerHTML = `
+    ${logo ? `<img style="max-width:200px;margin-bottom:10px;" src="${logo}"><br>` : ""}
+    ${previewDiaEl.innerHTML}
+  `;
+
+  window.print();
+});
+
+/**************************************************
  * INICIALIZAÇÃO
- ************************************/
+ **************************************************/
 function init() {
-  configurarAbas();
+  document.getElementById("data-dia").value = new Date().toISOString().split("T")[0];
   renderFuncionarios();
   renderPresenca();
   renderLogo();
 }
-
 document.addEventListener("DOMContentLoaded", init);
