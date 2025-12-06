@@ -20,17 +20,17 @@
   <nav class="tabs">
     <button class="tab-button active" data-target="section-equipe">Equipe</button>
     <button class="tab-button" data-target="section-dia">Escala do Dia</button>
-    <button class="tab-button" data-target="section-semana">Semana</button>
     <button class="tab-button" data-target="section-historico">Histórico</button>
     <button class="tab-button" data-target="section-config">Configurações</button>
   </nav>
 
   <main>
+
     <!-- EQUIPE -->
     <section id="section-equipe" class="tab-section active">
       <h2>Cadastro de Equipe</h2>
       <form id="form-add-funcionario" class="card">
-        <label for="nome-funcionario">Nome do colaborador</label>
+        <label>Nome do colaborador</label>
         <div class="inline-form">
           <input type="text" id="nome-funcionario" placeholder="Ex: João, Maria..." required />
           <button type="submit">Adicionar</button>
@@ -39,127 +39,84 @@
 
       <div class="card">
         <div class="card-header-row">
-          <h3>Lista de colaboradores</h3>
+          <h3>Equipe Cadastrada</h3>
           <span id="total-funcionarios" class="badge">0</span>
         </div>
         <ul id="lista-funcionarios" class="list"></ul>
-        <p class="tip">
-          Dica: cadastre todos os ajudantes, garçons e apoio da barraca.  
-          Depois, na aba <strong>Escala do Dia</strong>, você marca quem está presente.
-        </p>
       </div>
     </section>
+
 
     <!-- ESCALA DO DIA -->
     <section id="section-dia" class="tab-section">
       <h2>Escala do Dia</h2>
 
       <div class="card">
-        <label for="data-dia">Data da escala</label>
-        <input type="date" id="data-dia" />
+        <label>Data</label>
+        <input type="date" id="data-dia">
       </div>
 
       <div class="card">
-        <div class="card-header-row">
-          <h3>Quem está presente hoje?</h3>
-          <span id="total-presentes" class="badge">0</span>
-        </div>
+        <h3>Selecionar presentes</h3>
         <ul id="lista-presenca" class="list"></ul>
-        <p class="tip">Marque apenas quem está trabalhando nesse dia.</p>
+        <span id="total-presentes" class="badge">0</span>
       </div>
 
-      <div class="actions-row">
-        <button id="btn-gerar-dia" class="primary">Gerar escala do dia</button>
-        <button id="btn-salvar-dia" class="secondary" disabled>Salvar no histórico</button>
-      </div>
-
-      <section class="card preview-card">
-        <h3>Pré-visualização (igual à impressão)</h3>
-        <div id="preview-dia" class="preview-area empty">
-          <p>Nenhuma escala gerada ainda.</p>
-        </div>
-        <button id="btn-imprimir-dia" class="primary" disabled>Imprimir / PDF</button>
-      </section>
-    </section>
-
-    <!-- ESCALA DA SEMANA -->
-    <section id="section-semana" class="tab-section">
-      <h2>Escala da Semana</h2>
       <div class="card">
-        <label for="data-semana">Data inicial</label>
-        <input type="date" id="data-semana" />
-        <p class="tip">O app gera 7 dias a partir dessa data.</p>
+        <h3>🛠 Configurar Almoço</h3>
+        <label>Quantidade 1ª turma</label>
+        <input id="qtd-turma1" type="number" placeholder="Ex: 5">
+
+        <label>Quantidade 2ª turma</label>
+        <input id="qtd-turma2" type="number" placeholder="Ex: 5">
       </div>
 
-      <div class="actions-row">
-        <button id="btn-gerar-semana" class="primary">Gerar escala da semana</button>
-      </div>
+      <button id="btn-gerar-dia" class="primary">Gerar Escala</button>
 
       <section class="card preview-card">
-        <h3>Pré-visualização da semana</h3>
-        <div id="preview-semana" class="preview-area empty">
-          <p>Nenhuma escala semanal gerada ainda.</p>
-        </div>
-        <button id="btn-imprimir-semana" class="primary" disabled>Imprimir semana</button>
+        <h3>Pré-visualização</h3>
+        <div id="preview-dia" class="preview-area empty">Nenhuma escala gerada.</div>
+        <button id="btn-imprimir-dia" class="primary" disabled>Imprimir / PDF</button>
+        <button id="btn-salvar-dia" class="secondary" disabled>Salvar Histórico</button>
       </section>
     </section>
+
 
     <!-- HISTÓRICO -->
     <section id="section-historico" class="tab-section">
-      <h2>Histórico de Escalas</h2>
-      <div class="card">
-        <ul id="lista-historico" class="list"></ul>
-        <p class="tip">
-          Aqui ficam as escalas salvas.  
-          Você pode reabrir para visualizar e imprimir novamente.
-        </p>
-      </div>
-      <div class="actions-row">
-        <button id="btn-apagar-historico" class="danger">Apagar todo histórico</button>
-      </div>
+      <h2>Histórico</h2>
+      <ul id="lista-historico" class="list"></ul>
+      <button id="btn-apagar-historico" class="danger">Apagar tudo</button>
     </section>
+
 
     <!-- CONFIGURAÇÕES -->
     <section id="section-config" class="tab-section">
       <h2>Configurações</h2>
 
       <div class="card">
-        <h3>Logo da barraca</h3>
-        <p>Escolha a imagem que vai sair no topo da impressão.</p>
-        <input type="file" id="input-logo" accept="image/*" />
-        <div class="logo-preview-wrapper">
-          <div id="logo-preview-container" class="logo-preview">
-            <p>Nenhuma logo selecionada.</p>
-          </div>
-        </div>
-        <button id="btn-remover-logo" class="secondary">Remover logo</button>
-      </div>
-
-      <div class="card">
-        <h3>Rodízio</h3>
-        <p>
-          O app faz rodízio automático para não repetir sempre as mesmas pessoas nas mesmas funções.
-        </p>
-        <button id="btn-reset-rodizio" class="secondary">Resetar rodízio</button>
+        <h3>Logo</h3>
+        <input type="file" id="input-logo" accept="image/*">
+        <div id="logo-preview-container" class="logo-preview"><p>Nenhuma imagem</p></div>
+        <button id="btn-remover-logo" class="danger">Remover logo</button>
       </div>
     </section>
+
   </main>
 
-  <!-- MODAL DE EDIÇÃO DAS FUNÇÕES -->
+
+  <!-- MODAL EDIÇÃO -->
   <div id="modal-edicao" class="modal hidden">
     <div class="modal-content">
-      <h3 id="modal-titulo">Editar</h3>
+      <h3 id="modal-titulo"></h3>
       <div id="modal-lista"></div>
-      <div class="modal-actions">
-        <button id="modal-salvar" class="primary">Salvar</button>
-        <button id="modal-cancelar" class="secondary">Cancelar</button>
-      </div>
+      <button id="modal-salvar" class="primary">Salvar</button>
+      <button id="modal-cancelar" class="secondary">Cancelar</button>
     </div>
   </div>
 
-  <!-- ÁREA DE IMPRESSÃO (dia ou semana) -->
   <div id="print-area"></div>
 
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
