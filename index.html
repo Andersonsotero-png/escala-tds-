@@ -4,17 +4,8 @@
   <meta charset="UTF-8" />
   <title>Escala Terra do Sol</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Manifest corrigido -->
-  <link rel="manifest" href="./manifest.json">
-
-  <!-- Ícone -->
-  <link rel="icon" href="./icons/icon-192.png">
-
-  <!-- CSS CORRIGIDO -->
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
   <header class="app-header">
     <div class="logo-mini">
@@ -29,16 +20,17 @@
   <nav class="tabs">
     <button class="tab-button active" data-target="section-equipe">Equipe</button>
     <button class="tab-button" data-target="section-dia">Escala do Dia</button>
-    <button class="tab-button" data-target="section-editar">Editar Escala</button>
     <button class="tab-button" data-target="section-semana">Semana</button>
     <button class="tab-button" data-target="section-historico">Histórico</button>
     <button class="tab-button" data-target="section-config">Configurações</button>
   </nav>
 
   <main>
-    <!-- EQUIPE -->
+
+    <!-- ================== EQUIPE ================== -->
     <section id="section-equipe" class="tab-section active">
       <h2>Cadastro de Equipe</h2>
+
       <form id="form-add-funcionario" class="card">
         <label for="nome-funcionario">Nome do colaborador</label>
         <div class="inline-form">
@@ -53,25 +45,12 @@
           <span id="total-funcionarios" class="badge">0</span>
         </div>
         <ul id="lista-funcionarios" class="list"></ul>
-        <p class="tip">
-          Dica: cadastre todos os ajudantes, garçons e apoio da barraca.
-          Depois, na aba <strong>Escala do Dia</strong>, marque quem está presente.
-        </p>
       </div>
     </section>
 
-    <!-- ABA NOVA: EDITAR ESCALA -->
-    <section id="section-editar" class="tab-section">
-      <h2>Editar Escala Gerada</h2>
 
-      <div id="editar-container" class="card">
-        <p class="tip">Gere uma escala antes, depois você poderá editar aqui.</p>
-      </div>
 
-      <button id="btn-salvar-edicao" class="primary" disabled>Salvar alterações</button>
-    </section>
-
-    <!-- ESCALA DO DIA -->
+    <!-- ================== ESCALA DO DIA ================== -->
     <section id="section-dia" class="tab-section">
       <h2>Escala do Dia</h2>
 
@@ -86,82 +65,85 @@
           <span id="total-presentes" class="badge">0</span>
         </div>
         <ul id="lista-presenca" class="list"></ul>
-        <p class="tip">Marque apenas quem está trabalhando nesse dia.</p>
+      </div>
+
+
+      <!-- NOVA ÁREA DE CONFIGURAÇÕES PERSONALIZÁVEIS -->
+      <div class="card">
+        <h3>Funções do Dia</h3>
+
+        <label> 🍽 Almoço — 1ª Turma</label>
+        <input type="text" id="quant-t1" placeholder="Exemplo: Ana, João, Pedro">
+
+        <label> 🍽 Almoço — 2ª Turma</label>
+        <input type="text" id="quant-t2" placeholder="Exemplo: Maria, Paulo">
+
+        <label>🧺 Setor 1 — Salão + Coqueiro Direito</label>
+        <input type="text" id="setor1" placeholder="Quem fica aqui?">
+
+        <label>🧺 Setor 2 — Praia Direita + Parquinho</label>
+        <input type="text" id="setor2" placeholder="Quem fica aqui?">
+
+        <label>🧺 Setor 3 — Coqueiro Esquerdo + Praia Esquerda</label>
+        <input type="text" id="setor3" placeholder="Quem fica aqui?">
+
+        <label>🍹 Bar — Posição 1</label>
+        <input type="text" id="bar1" placeholder="Exemplo: Lucas">
+
+        <label>🍹 Bar — Posição 2</label>
+        <input type="text" id="bar2" placeholder="Exemplo: Vitória">
       </div>
 
       <div class="actions-row">
-        <button id="btn-gerar-dia" class="primary">Gerar escala do dia</button>
-        <button id="btn-salvar-dia" class="secondary" disabled>Salvar no histórico</button>
+        <button id="btn-gerar-dia" class="primary">Gerar escala</button>
+        <button id="btn-imprimir-dia" class="secondary" disabled>Imprimir</button>
       </div>
 
       <section class="card preview-card">
-        <h3>Pré-visualização</h3>
+        <h3>Pré-Visualização</h3>
         <div id="preview-dia" class="preview-area empty">
-          <p>Nenhuma escala gerada ainda.</p>
+          <p>Nenhuma escala gerada.</p>
         </div>
-        <button id="btn-imprimir-dia" class="primary" disabled>Imprimir / PDF</button>
       </section>
     </section>
 
-    <!-- SEMANA -->
+
+
+    <!-- ================== SEMANA ================== -->
     <section id="section-semana" class="tab-section">
       <h2>Escala da Semana</h2>
-
-      <div class="card">
-        <label for="data-semana">Data inicial</label>
-        <input type="date" id="data-semana" />
-        <p class="tip">O app gera 7 dias automaticamente.</p>
-      </div>
-
-      <div class="actions-row">
-        <button id="btn-gerar-semana" class="primary">Gerar semana</button>
-      </div>
-
-      <section class="card preview-card">
-        <h3>Pré-visualização da semana</h3>
-        <div id="preview-semana" class="preview-area empty">
-          <p>Nenhuma escala gerada ainda.</p>
-        </div>
-        <button id="btn-imprimir-semana" class="primary" disabled>Imprimir</button>
-      </section>
+      <p style="opacity:.6">⚠ Modo semanal ainda usa rodízio automático.</p>
     </section>
 
-    <!-- HISTÓRICO -->
+
+
+    <!-- ================== HISTÓRICO ================== -->
     <section id="section-historico" class="tab-section">
       <h2>Histórico</h2>
-      <ul id="lista-historico" class="list card"></ul>
-      <button id="btn-apagar-historico" class="danger">Limpar histórico</button>
+      <ul id="lista-historico" class="list"></ul>
+      <button id="btn-apagar-historico" class="danger">Apagar histórico</button>
     </section>
 
-    <!-- CONFIGURACOES -->
+
+
+    <!-- ================== CONFIG ================== -->
     <section id="section-config" class="tab-section">
       <h2>Configurações</h2>
 
       <div class="card">
-        <h3>Logo da barraca</h3>
-        <input type="file" id="input-logo" accept="image/*">
-        <div id="logo-preview-container" class="logo-preview"><p>Nenhuma logo selecionada.</p></div>
-        <button id="btn-remover-logo" class="secondary">Remover</button>
+        <label>Logo da Barraca</label>
+        <input type="file" accept="image/*" id="input-logo">
+        <div class="logo-preview" id="logo-preview-container">Nenhuma logo carregada</div>
+        <button id="btn-remover-logo" class="secondary">Remover logo</button>
       </div>
 
-      <div class="card">
-        <h3>Rodízio</h3>
-        <button id="btn-reset-rodizio" class="secondary">Resetar rodízio</button>
-      </div>
     </section>
+
   </main>
 
-  <!-- ÁREA DE IMPRESSÃO -->
+  <!-- Área invisível para impressão -->
   <div id="print-area"></div>
 
-  <!-- SCRIPT CORRIGIDO -->
-  <script src="./script.js"></script>
-
-  <!-- SERVICE WORKER CORRIGIDO -->
-  <script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./service-worker.js");
-  }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
