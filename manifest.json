@@ -1,1 +1,370 @@
+/* ----------------------- UTILITÁRIOS ----------------------- */
 
+function formatDateISO(date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function parseDateInput(value) {
+  if (!value) return new Date();
+  const [y, m, d] = value.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function formatDateBR(dateStr) {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return `${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")}/${y}`;
+}
+
+function weekdayName(dateStr) {
+  const dias = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+  const [y,m,d] = dateStr.split("-").map(Number);
+  return dias[new Date(y,m-1,d).getDay()];
+}
+
+/* ----------------------- STORAGE ----------------------- */
+
+const STORAGE_KEYS = {
+  FUNCIONARIOS: "tds_escala_funcionarios",
+  LOGO: "tds_escala_logo",
+  HISTORICO: "tds_escala_historico",
+  RODIZIO: "tds_escala_rodizio"
+}
+
+function load(key, fallback = null) {
+  const raw = localStorage.getItem(key);
+  if (!raw) return fallback;
+  try { return JSON.parse(raw); } catch { return fallback; }
+}
+
+function save(key, data) {
+  localStorage.setItem(key, JSON.stringify(data));
+}
+
+/* ----------------------- VARIÁVEIS ----------------------- */
+
+let funcionarios = load(STORAGE_KEYS.FUNCIONARIOS, []);
+let rodizio = load(STORAGE_KEYS.RODIZIO, 0);
+let ultimoDia = null;
+let escalaEditavel = null;
+
+/* ----------------------- ABA EQUIPE ----------------------- */
+
+const inputNomeFuncionario = document.getElementById("nome-funcionario");
+const listaFuncionariosEl = document.getElementById("lista-funcionarios");
+const totalFuncionariosEl = document.getElementById("total-funcionarios");
+
+document.getElementById("form-add-funcionario").addEventListener("submit", e => {
+  e.preventDefault();
+  const nome = inputNomeFuncionario.value.trim();
+  if (!nome) return;
+  funcionarios.push({ id: Date.now(), nome });
+  save(STORAGE_KEYS.FUNCIONARIOS, funcionarios);
+  inputNomeFuncionario.value = "";
+  renderFuncionarios();
+  renderPresenca();
+});
+
+function removerFuncionario(id) {
+  funcionarios = funcionarios.filter(f => f.id !== id);
+  save(STORAGE_KEYS.FUNCIONARIOS, funcionarios);
+  renderFuncionarios();
+  renderPresenca();
+}
+
+function renderFuncionarios() {
+  listaFuncionariosEl.innerHTML = "";
+  if (funcionarios.length === 0) {
+    listaFuncionariosEl.innerHTML = "<li>Nenhum colaborador cadastrado.</li>";
+    totalFuncionariosEl.textContent = "0";
+    return;
+  }
+
+  funcionarios.sort((a,b) => a.nome.localeCompare(b.nome,"pt-BR")).forEach(f => {
+    const li = document.createElement("li");
+    li.className = "list-item-row";
+    li.innerHTML = `
+      <div class="list-item-main">
+        <span class="nome">${f.nome}</span>
+        <small>ID: ${f.id}</small>
+      </div>
+      <button class="danger small">Remover</button>
+    `;
+    li.querySelector("button").addEventListener("click", ()=> removerFuncionario(f.id));
+    listaFuncionariosEl.appendChild(li);
+  });
+
+  totalFuncionariosEl.textContent = funcionarios.length;
+}
+
+/* ----------------------- PRESENÇA ----------------------- */
+
+const listaPresencaEl = document.getElementById("lista-presenca");
+const totalPresentesEl = document.getElementById("total-presentes");
+
+function renderPresenca() {
+  listaPresencaEl.innerHTML = "";
+  funcionarios.sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR")).forEach(f=>{
+    const li = document.createElement("li");
+    li.className = "list-item-row";
+    li.innerHTML = `
+      <div class="list-item-main">
+        <input type="checkbox" data-id="${f.id}">
+        <span class="nome">${f.nome}</span>
+      </div>
+    `;
+    listaPresencaEl.appendChild(li);
+  });
+  atualizarPresentes();
+}
+
+function getPresentes() {
+  const checks = listaPresencaEl.querySelectorAll("input:checked");
+  return [...checks].map(chk => funcionarios.find(f => f.id == chk.dataset.id));
+}
+
+function atualizarPresentes() {
+  totalPresentesEl.textContent = getPresentes().length;
+}
+
+listaPresencaEl.addEventListener("change", atualizarPresentes);
+
+/* ----------------------- LÓGICA DE ESCALA ----------------------- */
+
+function rotate(arr, offset) {
+  const n = arr.length;
+  if (n === 0) return [];
+  offset = ((offset % n) + n) % n;
+  return arr.slice(offset).concat(arr.slice(0, offset));
+}
+
+function gerarEscala(dataISO, presentes) {
+  const order = rotate([...presentes].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR")), rodizio);
+
+  const escala = {
+    data: dataISO,
+    weekday: weekdayName(dataISO),
+    bar: [ order.shift(), order.shift() ],
+    aparadores: [ order.shift(), order.shift(), order.shift() ],
+    almoco: [ [...order.slice(0, Math.ceil(order.length/2))], [...order.slice(Math.ceil(order.length/2))] ],
+    lanche: []
+  };
+
+  const r = order.slice();
+  const size = Math.ceil(r.length/3);
+  escala.lanche = [
+    r.slice(0,size),
+    r.slice(size, size*2),
+    r.slice(size*2)
+  ];
+
+  return escala;
+}
+
+/* ----------------------- PREVIEW ----------------------- */
+
+function renderEscalaHTML(escala) {
+  const logo = load(STORAGE_KEYS.LOGO);
+  const br = formatDateBR(escala.data);
+
+  function nomes(arr){ return arr.length ? arr.map(a=>a.nome).join(", ") : "—" }
+
+  return `
+  <article class="escala-documento">
+    <header class="escala-header">
+      ${logo ? `<img src="${logo}">` : ""}
+      <h1>BARRACA TERRA DO SOL</h1>
+      <h2>Escala Operacional</h2>
+      <p>${escala.weekday} — ${br}</p>
+    </header>
+
+    <section class="escala-section">
+      <h3>🍽 Almoço</h3>
+      <table class="escala-table">
+        <tr><td>1ª Turma (10:00 → 10:40)</td><td>${nomes(escala.almoco[0])}</td></tr>
+        <tr><td>2ª Turma (10:40 → 11:20)</td><td>${nomes(escala.almoco[1])}</td></tr>
+      </table>
+    </section>
+
+    <section class="escala-section">
+      <h3>☕ Lanche</h3>
+      <table class="escala-table">
+        <tr><td>1ª Turma</td><td>${nomes(escala.lanche[0])}</td></tr>
+        <tr><td>2ª Turma</td><td>${nomes(escala.lanche[1])}</td></tr>
+        <tr><td>3ª Turma</td><td>${nomes(escala.lanche[2])}</td></tr>
+      </table>
+    </section>
+
+    <section class="escala-section">
+      <h3>🧺 Aparadores</h3>
+      <table class="escala-table">
+        <tr><td>Setor 1</td><td>${escala.aparadores[0]?.nome || "—"}</td></tr>
+        <tr><td>Setor 2</td><td>${escala.aparadores[1]?.nome || "—"}</td></tr>
+        <tr><td>Setor 3</td><td>${escala.aparadores[2]?.nome || "—"}</td></tr>
+      </table>
+    </section>
+
+    <section class="escala-section">
+      <h3>🍹 Bar</h3>
+      <table class="escala-table">
+        <tr><td>Bar 1</td><td>${escala.bar[0]?.nome || "—"}</td></tr>
+        <tr><td>Bar 2</td><td>${escala.bar[1]?.nome || "—"}</td></tr>
+      </table>
+    </section>
+  </article>`;
+}
+
+/* ----------------------- BOTÃO GERAR ----------------------- */
+
+document.getElementById("btn-gerar-dia").addEventListener("click", () => {
+  const presentes = getPresentes();
+  if (presentes.length === 0) return alert("Nenhum colaborador selecionado.");
+  
+  const data = document.getElementById("data-dia").value || formatDateISO(new Date());
+  ultimoDia = gerarEscala(data, presentes);
+  escalaEditavel = JSON.parse(JSON.stringify(ultimoDia)); // clone
+
+  renderPreview();
+  prepararEdicao();
+  
+  rodizio++;
+  save(STORAGE_KEYS.RODIZIO, rodizio);
+  
+  document.getElementById("btn-salvar-dia").disabled = false;
+  document.getElementById("btn-imprimir-dia").disabled = false;
+});
+
+function renderPreview() {
+  const preview = document.getElementById("preview-dia");
+  preview.classList.remove("empty");
+  preview.innerHTML = renderEscalaHTML(escalaEditavel);
+}
+
+/* ----------------------- IMPRESSÃO ----------------------- */
+
+document.getElementById("btn-imprimir-dia").addEventListener("click",()=>{
+  const area = document.getElementById("print-area");
+  area.innerHTML = renderEscalaHTML(escalaEditavel);
+  window.print();
+});
+
+/* ----------------------- EDIÇÃO MANUAL ----------------------- */
+
+const editarWrapper = document.getElementById("editar-wrapper");
+const btnSalvarEdicao = document.getElementById("btn-salvar-edicao");
+
+function criarListaDrag(titulo, listaRef) {
+  const bloco = document.createElement("div");
+  bloco.className = "editar-bloco";
+  bloco.innerHTML = `<h3>${titulo}</h3><div class="sortable-container"></div>`;
+  const container = bloco.querySelector(".sortable-container");
+
+  listaRef.forEach(p => {
+    const div = document.createElement("div");
+    div.className = "sortable-item";
+    div.textContent = p.nome;
+    div.dataset.id = p.id;
+    container.appendChild(div);
+  });
+
+  new Sortable(container,{ animation:150 });
+
+  return bloco;
+}
+
+function prepararEdicao(){
+  editarWrapper.innerHTML = "";
+
+  if (!escalaEditavel) return;
+
+  editarWrapper.appendChild(criarListaDrag("Bar", escalaEditavel.bar));
+  editarWrapper.appendChild(criarListaDrag("Aparadores", escalaEditavel.aparadores));
+  editarWrapper.appendChild(criarListaDrag("Almoço - 1ª turma", escalaEditavel.almoco[0]));
+  editarWrapper.appendChild(criarListaDrag("Almoço - 2ª turma", escalaEditavel.almoco[1]));
+  editarWrapper.appendChild(criarListaDrag("Lanche - 1ª turma", escalaEditavel.lanche[0]));
+  editarWrapper.appendChild(criarListaDrag("Lanche - 2ª turma", escalaEditavel.lanche[1]));
+  editarWrapper.appendChild(criarListaDrag("Lanche - 3ª turma", escalaEditavel.lanche[2]));
+
+  btnSalvarEdicao.disabled = false;
+}
+
+btnSalvarEdicao.addEventListener("click", () => {
+  const containers = editarWrapper.querySelectorAll(".sortable-container");
+  const newEscala = {...escalaEditavel};
+
+  function extract(listRef){
+    return [...listRef.querySelectorAll(".sortable-item")].map(el=>{
+      return funcionarios.find(f=>f.id==el.dataset.id);
+    });
+  }
+
+  newEscala.bar = extract(containers[0]);
+  newEscala.aparadores = extract(containers[1]);
+  newEscala.almoco[0] = extract(containers[2]);
+  newEscala.almoco[1] = extract(containers[3]);
+  newEscala.lanche[0] = extract(containers[4]);
+  newEscala.lanche[1] = extract(containers[5]);
+  newEscala.lanche[2] = extract(containers[6]);
+
+  escalaEditavel = newEscala;
+  renderPreview();
+  alert("Escala atualizada com sucesso!");
+});
+
+/* ----------------------- HISTÓRICO ----------------------- */
+
+document.getElementById("btn-salvar-dia").addEventListener("click",()=>{
+  if (!escalaEditavel) return;
+  const hist = load(STORAGE_KEYS.HISTORICO,{});
+  hist[escalaEditavel.data] = escalaEditavel;
+  save(STORAGE_KEYS.HISTORICO, hist);
+  alert("Salvo no histórico!");
+});
+
+/* ----------------------- LOGO ----------------------- */
+
+document.getElementById("input-logo").addEventListener("change", e=>{
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    save(STORAGE_KEYS.LOGO, ev.target.result);
+    document.getElementById("logo-preview-container").innerHTML = `<img src="${ev.target.result}">`;
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById("btn-remover-logo").addEventListener("click",()=>{
+  save(STORAGE_KEYS.LOGO,null);
+  document.getElementById("logo-preview-container").innerHTML = "";
+});
+
+/* ----------------------- RESET RODÍZIO ----------------------- */
+
+document.getElementById("btn-reset-rodizio").addEventListener("click",()=>{
+  if (confirm("Resetar rodízio?")){
+    rodizio = 0;
+    save(STORAGE_KEYS.RODIZIO,0);
+    alert("Rodízio resetado!");
+  }
+});
+
+/* ----------------------- TABS ----------------------- */
+
+document.querySelectorAll(".tab-button").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".tab-button").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".tab-section").forEach(s=>s.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById(btn.dataset.target).classList.add("active");
+  });
+});
+
+/* ----------------------- INIT ----------------------- */
+
+function init(){
+  renderFuncionarios();
+  renderPresenca();
+  document.getElementById("data-dia").value = formatDateISO(new Date());
+  document.getElementById("data-semana").value = formatDateISO(new Date());
+}
+init();
