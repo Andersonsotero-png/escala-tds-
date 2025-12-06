@@ -2,115 +2,131 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
+  <title>Escala Terra do Sol</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Manifest para instalação -->
   <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css" />
 
-  <!-- Forçar atualização de cache -->
-  <link rel="stylesheet" href="style.css?v=6" />
-
-  <title>Escala Ajudantes</title>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js");
+    }
+  </script>
 </head>
 <body>
 
-  <header class="app-header">
-    <div class="logo-mini">🌞</div>
-    <div class="title-group">
-      <h1>Escala Ajudantes</h1>
-      <p>Almoço • Lanche • Aparadores</p>
+<header class="app-header">
+  <div class="logo-mini">🌞</div>
+  <div class="title-group">
+    <h1>Terra do Sol</h1>
+    <p>Escala Ajudantes</p>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab-button active" data-target="section-equipe">Equipe</button>
+  <button class="tab-button" data-target="section-dia">Escala do Dia</button>
+  <button class="tab-button" data-target="section-historico">Histórico</button>
+  <button class="tab-button" data-target="section-config">Configurações</button>
+</nav>
+
+<main>
+
+  <!-- EQUIPE -->
+  <section id="section-equipe" class="tab-section active">
+    <h2>Cadastro</h2>
+    <form id="form-add-funcionario" class="card">
+      <label>Nome do colaborador</label>
+      <div class="inline-form">
+        <input id="nome-funcionario" type="text" required placeholder="Ex: João, Maria...">
+        <button>Adicionar</button>
+      </div>
+    </form>
+
+    <div class="card">
+      <div class="card-header-row">
+        <h3>Lista de colaboradores</h3>
+        <span id="total-funcionarios" class="badge">0</span>
+      </div>
+      <ul id="lista-funcionarios" class="list"></ul>
     </div>
-  </header>
+  </section>
 
-  <nav class="tabs">
-    <button class="tab-button active" data-target="section-equipe">Equipe</button>
-    <button class="tab-button" data-target="section-dia">Escala do Dia</button>
-    <button class="tab-button" data-target="section-historico">Histórico</button>
-    <button class="tab-button" data-target="section-config">Configurações</button>
-  </nav>
+  <!-- ESCALA DO DIA -->
+  <section id="section-dia" class="tab-section">
+    <h2>Escala</h2>
 
-  <main>
-    <!-- EQUIPE -->
-    <section id="section-equipe" class="tab-section active">
-      <h2>Cadastro da Equipe</h2>
-      <form id="form-add-funcionario" class="card">
-        <label>Nome do colaborador</label>
-        <div class="inline-form">
-          <input type="text" id="nome-funcionario" placeholder="Ex: João, Maria..." required>
-          <button type="submit" class="primary">Adicionar</button>
-        </div>
-      </form>
+    <div class="card">
+      <label>Data</label>
+      <input type="date" id="data-dia">
+    </div>
 
-      <div class="card">
-        <div class="card-header-row">
-          <h3>Equipe cadastrada</h3>
-          <span id="total-funcionarios" class="badge">0</span>
-        </div>
-        <ul id="lista-funcionarios" class="list"></ul>
+    <div class="card">
+      <div class="card-header-row">
+        <h3>Presença</h3>
+        <span id="total-presentes" class="badge">0</span>
       </div>
+      <ul id="lista-presenca" class="list"></ul>
+    </div>
+
+    <div class="card">
+      <h3>Configurar Quantidade</h3>
+      <label>1ª Turma (almoço)</label>
+      <input type="number" id="q1" value="3">
+      <label>2ª Turma (almoço)</label>
+      <input type="number" id="q2" value="3">
+    </div>
+
+    <div class="actions-row">
+      <button id="btn-gerar-dia" class="primary">Gerar</button>
+      <button id="btn-imprimir-dia" class="secondary" disabled>Imprimir</button>
+    </div>
+
+    <section class="card preview-card">
+      <h3>Pré-visualização</h3>
+      <div id="preview-dia" class="preview-area empty">Nenhuma escala gerada ainda.</div>
     </section>
+  </section>
 
-    <!-- ESCALA DO DIA -->
-    <section id="section-dia" class="tab-section">
-      <h2>Escala do Dia</h2>
-
-      <div class="card">
-        <label>Data</label>
-        <input type="date" id="data-dia">
-      </div>
-
-      <div class="card">
-        <h3>Selecionar presentes</h3>
-        <ul id="lista-presenca" class="list"></ul>
-        <span>Total: <strong id="total-presentes">0</strong></span>
-      </div>
-
-      <div class="card">
-        <h3>⚙️ Configurar Almoço</h3>
-        <label>Quantidade 1ª turma</label>
-        <input type="number" id="q1" placeholder="Ex: 5">
-
-        <label>Quantidade 2ª turma</label>
-        <input type="number" id="q2" placeholder="Ex: 5">
-      </div>
-
-      <button id="btn-gerar-dia" class="primary">Gerar Escala</button>
-
-      <section class="card preview-card">
-        <h3>Pré-visualização</h3>
-        <div id="preview-dia" class="preview-area empty">Nenhuma escala gerada.</div>
-        <button id="btn-imprimir-dia" class="primary" disabled>Imprimir</button>
-      </section>
-    </section>
-
-    <!-- HISTÓRICO -->
-    <section id="section-historico" class="tab-section">
-      <h2>Histórico de Escalas</h2>
+  <!-- HISTÓRICO -->
+  <section id="section-historico" class="tab-section">
+    <h2>Histórico</h2>
+    <div class="card">
       <ul id="lista-historico" class="list"></ul>
-    </section>
+      <button id="btn-apagar-historico" class="danger">Apagar histórico</button>
+    </div>
+  </section>
 
-    <!-- CONFIGURAÇÕES -->
-    <section id="section-config" class="tab-section">
-      <h2>Configurações</h2>
+  <!-- CONFIG -->
+  <section id="section-config" class="tab-section">
+    <h2>Configurações</h2>
 
-      <div class="card">
-        <h3>Logo da barraca</h3>
-        <input type="file" id="input-logo" accept="image/*">
-        <div id="logo-preview-container" class="logo-preview"><p>Nenhuma logo selecionada.</p></div>
-        <button id="btn-remover-logo" class="danger small">Remover</button>
+    <div class="card">
+      <h3>Logo</h3>
+      <input type="file" id="input-logo" accept="image/*">
+
+      <div id="logo-preview-container" class="logo-preview">
+        Nenhuma logo ainda.
       </div>
-    </section>
-  </main>
 
-  <div id="print-area"></div>
+      <button id="btn-remover-logo" class="danger">Remover</button>
+    </div>
+  </section>
 
-  <script src="script.js?v=6"></script>
+</main>
 
-  <!-- Ativar PWA -->
-  <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./service-worker.js")
-    }
-  </script>
+<div id="print-area"></div>
+
+<!-- MODAL -->
+<div id="edit-modal" class="modal hidden">
+  <div class="modal-box">
+    <h3 id="modal-title"></h3>
+    <ul id="modal-list" class="modal-order-list"></ul>
+    <button id="save-modal" class="primary">Salvar</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
